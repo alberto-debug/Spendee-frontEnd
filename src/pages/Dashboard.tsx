@@ -25,7 +25,6 @@ import { format } from "date-fns";
 import { motion } from "framer-motion";
 import Navbar from "../components/navbar2";
 import Footer from "../components/Footer";
-import { useSwipeable } from "react-swipeable";
 
 interface Transaction {
   id: number;
@@ -47,6 +46,7 @@ const DashboardPage = () => {
   });
   const [isIncomeOpen, setIsIncomeOpen] = useState(false);
   const [isExpenseOpen, setIsExpenseOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const handleLogout = () => {
     sessionStorage.removeItem("auth-token");
@@ -144,10 +144,12 @@ const DashboardPage = () => {
     }
   };
 
-  const handleDeleteTransaction = async (id: number) => {
+  const handleDeleteTransaction = async () => {
+    if (deleteId === null) return;
+
     try {
       await axios.delete(
-        `https://spendee-track-spending-easily.onrender.com/finance/transaction/${id}`,
+        `https://spendee-track-spending-easily.onrender.com/finance/transaction/${deleteId}`,
         {
           headers: {
             Authorization: `Bearer ${sessionStorage.getItem("auth-token")}`,
@@ -161,6 +163,7 @@ const DashboardPage = () => {
         isClosable: true,
       });
       fetchTransactions();
+      setDeleteId(null);
     } catch (error) {
       toast({
         title: "Error removing transaction",
@@ -174,16 +177,6 @@ const DashboardPage = () => {
   useEffect(() => {
     fetchTransactions();
   }, []);
-
-  const swipeHandlers = useSwipeable({
-    onSwipedLeft: (eventData) => {
-      const target = eventData.event.currentTarget as HTMLElement;
-      const id = target.dataset.id;
-      if (id) {
-        handleDeleteTransaction(parseInt(id, 10));
-      }
-    },
-  });
 
   return (
     <Box bg="black" color="white">
@@ -434,8 +427,7 @@ const DashboardPage = () => {
                   w="100%"
                   justifyContent="space-between"
                   alignItems="center"
-                  {...swipeHandlers}
-                  data-id={transaction.id}
+                  border="1px solid #333"
                 >
                   <Flex justifyContent="space-between" alignItems="center">
                     <Box>
@@ -462,10 +454,10 @@ const DashboardPage = () => {
                         {format(new Date(transaction.date), "dd/MM/yyyy")}
                       </ChakraText>
                     </Box>
-                    <Box>
+                    <Box flex={1} textAlign="right">
                       <ChakraText
                         fontWeight="bold"
-                        fontSize={["sm", "md", "lg"]}
+                        fontSize={["lg", "xl", "2xl"]}
                         color={
                           transaction.type === "INCOME"
                             ? "green.500"
@@ -481,6 +473,13 @@ const DashboardPage = () => {
                         {transaction.type}
                       </ChakraText>
                     </Box>
+                    <IconButton
+                      aria-label="Delete transaction"
+                      icon={<DeleteIcon />}
+                      colorScheme="red"
+                      size="xs"
+                      onClick={() => setDeleteId(transaction.id)}
+                    />
                   </Flex>
                 </Box>
               ))}
@@ -489,6 +488,24 @@ const DashboardPage = () => {
         </Box>
       </Box>
       <Footer />
+      <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Delete Transaction</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>Are you sure you want to delete this transaction?</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button mr={3} onClick={() => setDeleteId(null)}>
+              Cancel
+            </Button>
+            <Button colorScheme="red" onClick={handleDeleteTransaction}>
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
