@@ -6,7 +6,6 @@ import {
   Button,
   Input,
   VStack,
-  Select,
   useToast,
   IconButton,
   Flex,
@@ -17,6 +16,8 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
+  Circle,
+  Text as ChakraText,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import axios from "axios";
@@ -222,7 +223,7 @@ const DashboardPage = () => {
           as="main"
           w="100%"
           maxW="600px"
-          bg="white"
+          bg="black"
           borderRadius="lg"
           shadow="xl"
           p={6}
@@ -265,7 +266,7 @@ const DashboardPage = () => {
 
           <Modal isOpen={isIncomeOpen} onClose={() => setIsIncomeOpen(false)}>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent maxW="300px">
               <ModalHeader>Add Income</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
@@ -334,7 +335,7 @@ const DashboardPage = () => {
 
           <Modal isOpen={isExpenseOpen} onClose={() => setIsExpenseOpen(false)}>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent maxW="300px">
               <ModalHeader>Add Expense</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
@@ -412,38 +413,55 @@ const DashboardPage = () => {
             </Heading>
             <VStack spacing={4}>
               {transactions.map((transaction) => (
-                <Box
+                <Flex
                   key={transaction.id}
                   p={4}
                   borderRadius="md"
                   shadow="md"
-                  bg={transaction.type === "INCOME" ? "green.100" : "red.100"}
-                  color={
-                    transaction.type === "INCOME" ? "green.800" : "red.800"
-                  }
+                  bg="black"
+                  color="white"
                   w="100%"
+                  justifyContent="space-between"
+                  alignItems="center"
                 >
-                  <Flex justify="space-between" align="center">
-                    <Box>
-                      <Text fontWeight="bold" fontSize={["sm", "md", "lg"]}>
-                        ${transaction.amount} - {transaction.type}
-                      </Text>
-                      <Text fontSize={["xs", "sm", "md"]}>
-                        {transaction.description}
-                      </Text>
-                      <Text fontSize={["xs", "sm", "md"]} color="gray.500">
-                        {format(new Date(transaction.date), "dd/MM/yyyy")}
-                      </Text>
-                    </Box>
-                    <IconButton
-                      aria-label="Delete transaction"
-                      icon={<DeleteIcon />}
-                      colorScheme="red"
-                      size="sm"
-                      onClick={() => handleDeleteTransaction(transaction.id)}
+                  <Box>
+                    <Circle
+                      size="10px"
+                      bg={
+                        transaction.type === "INCOME" ? "green.500" : "red.500"
+                      }
                     />
-                  </Flex>
-                </Box>
+                  </Box>
+                  <Box>
+                    <ChakraText fontWeight="bold" fontSize={["sm", "md", "lg"]}>
+                      {transaction.description}
+                    </ChakraText>
+                    <ChakraText fontSize={["xs", "sm", "md"]} color="gray.500">
+                      {format(new Date(transaction.date), "dd/MM/yyyy")}
+                    </ChakraText>
+                  </Box>
+                  <Box>
+                    <ChakraText
+                      fontWeight="bold"
+                      fontSize={["sm", "md", "lg"]}
+                      color={
+                        transaction.type === "INCOME" ? "green.500" : "red.500"
+                      }
+                    >
+                      ${transaction.amount}
+                    </ChakraText>
+                    <ChakraText fontSize={["xs", "sm", "md"]} color="gray.500">
+                      {transaction.type}
+                    </ChakraText>
+                  </Box>
+                  <IconButton
+                    aria-label="Delete transaction"
+                    icon={<DeleteIcon />}
+                    colorScheme="red"
+                    size="sm"
+                    onClick={() => handleDeleteTransaction(transaction.id)}
+                  />
+                </Flex>
               ))}
             </VStack>
           </Box>
