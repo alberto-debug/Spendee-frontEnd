@@ -25,6 +25,7 @@ import { format } from "date-fns";
 import { motion } from "framer-motion";
 import Navbar from "../components/navbar2";
 import Footer from "../components/Footer";
+import { useSwipeable } from "react-swipeable";
 
 interface Transaction {
   id: number;
@@ -173,6 +174,16 @@ const DashboardPage = () => {
   useEffect(() => {
     fetchTransactions();
   }, []);
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: (eventData) => {
+      const target = eventData.event.currentTarget as HTMLElement;
+      const id = target.dataset.id;
+      if (id) {
+        handleDeleteTransaction(parseInt(id, 10));
+      }
+    },
+  });
 
   return (
     <Box bg="black" color="white">
@@ -413,7 +424,7 @@ const DashboardPage = () => {
             </Heading>
             <VStack spacing={4}>
               {transactions.map((transaction) => (
-                <Flex
+                <Box
                   key={transaction.id}
                   p={4}
                   borderRadius="md"
@@ -423,45 +434,55 @@ const DashboardPage = () => {
                   w="100%"
                   justifyContent="space-between"
                   alignItems="center"
+                  {...swipeHandlers}
+                  data-id={transaction.id}
                 >
-                  <Box>
-                    <Circle
-                      size="10px"
-                      bg={
-                        transaction.type === "INCOME" ? "green.500" : "red.500"
-                      }
-                    />
-                  </Box>
-                  <Box>
-                    <ChakraText fontWeight="bold" fontSize={["sm", "md", "lg"]}>
-                      {transaction.description}
-                    </ChakraText>
-                    <ChakraText fontSize={["xs", "sm", "md"]} color="gray.500">
-                      {format(new Date(transaction.date), "dd/MM/yyyy")}
-                    </ChakraText>
-                  </Box>
-                  <Box>
-                    <ChakraText
-                      fontWeight="bold"
-                      fontSize={["sm", "md", "lg"]}
-                      color={
-                        transaction.type === "INCOME" ? "green.500" : "red.500"
-                      }
-                    >
-                      ${transaction.amount}
-                    </ChakraText>
-                    <ChakraText fontSize={["xs", "sm", "md"]} color="gray.500">
-                      {transaction.type}
-                    </ChakraText>
-                  </Box>
-                  <IconButton
-                    aria-label="Delete transaction"
-                    icon={<DeleteIcon />}
-                    colorScheme="red"
-                    size="sm"
-                    onClick={() => handleDeleteTransaction(transaction.id)}
-                  />
-                </Flex>
+                  <Flex justifyContent="space-between" alignItems="center">
+                    <Box>
+                      <Circle
+                        size="10px"
+                        bg={
+                          transaction.type === "INCOME"
+                            ? "green.500"
+                            : "red.500"
+                        }
+                      />
+                    </Box>
+                    <Box>
+                      <ChakraText
+                        fontWeight="bold"
+                        fontSize={["sm", "md", "lg"]}
+                      >
+                        {transaction.description}
+                      </ChakraText>
+                      <ChakraText
+                        fontSize={["xs", "sm", "md"]}
+                        color="gray.500"
+                      >
+                        {format(new Date(transaction.date), "dd/MM/yyyy")}
+                      </ChakraText>
+                    </Box>
+                    <Box>
+                      <ChakraText
+                        fontWeight="bold"
+                        fontSize={["sm", "md", "lg"]}
+                        color={
+                          transaction.type === "INCOME"
+                            ? "green.500"
+                            : "red.500"
+                        }
+                      >
+                        ${transaction.amount}
+                      </ChakraText>
+                      <ChakraText
+                        fontSize={["xs", "sm", "md"]}
+                        color="gray.500"
+                      >
+                        {transaction.type}
+                      </ChakraText>
+                    </Box>
+                  </Flex>
+                </Box>
               ))}
             </VStack>
           </Box>
