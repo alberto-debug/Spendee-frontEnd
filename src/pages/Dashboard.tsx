@@ -179,13 +179,19 @@ const DashboardPage = () => {
   }, []);
 
   return (
-    <Box bg="black" color="white">
-      <Navbar onLogout={handleLogout} />
+    <Box
+      bg="black"
+      color="white"
+      minH="100vh"
+      display="flex"
+      flexDirection="column"
+    >
       <Box
         bg="linear-gradient(to right, #1a1a1d, #0C0F15)"
         color="white"
         py={20}
         textAlign="center"
+        flex="1"
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -222,6 +228,7 @@ const DashboardPage = () => {
         display="flex"
         flexDirection="column"
         alignItems="center"
+        flex="1"
       >
         <Box
           as="main"
@@ -428,6 +435,7 @@ const DashboardPage = () => {
                   justifyContent="space-between"
                   alignItems="center"
                   border="1px solid #333"
+                  position="relative"
                 >
                   <Flex justifyContent="space-between" alignItems="center">
                     <Box>
@@ -440,7 +448,7 @@ const DashboardPage = () => {
                         }
                       />
                     </Box>
-                    <Box>
+                    <Box flex={1} marginLeft="20px">
                       <ChakraText
                         fontWeight="bold"
                         fontSize={["sm", "md", "lg"]}
@@ -454,7 +462,7 @@ const DashboardPage = () => {
                         {format(new Date(transaction.date), "dd/MM/yyyy")}
                       </ChakraText>
                     </Box>
-                    <Box flex={1} textAlign="right">
+                    <Box flex={1} marginLeft="70px">
                       <ChakraText
                         fontWeight="bold"
                         fontSize={["lg", "xl", "2xl"]}
@@ -479,6 +487,8 @@ const DashboardPage = () => {
                       colorScheme="red"
                       size="xs"
                       onClick={() => setDeleteId(transaction.id)}
+                      position="absolute"
+                      right={4}
                     />
                   </Flex>
                 </Box>
@@ -487,7 +497,9 @@ const DashboardPage = () => {
           </Box>
         </Box>
       </Box>
-      <Footer />
+      <Box position="fixed" bottom={0} w="100%">
+        <Footer />
+      </Box>
       <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)}>
         <ModalOverlay />
         <ModalContent>
