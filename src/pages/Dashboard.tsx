@@ -10,6 +10,13 @@ import {
   useToast,
   IconButton,
   Flex,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import axios from "axios";
@@ -36,6 +43,8 @@ const DashboardPage = () => {
     date: new Date().toISOString().split("T")[0],
     description: "",
   });
+  const [isIncomeOpen, setIsIncomeOpen] = useState(false);
+  const [isExpenseOpen, setIsExpenseOpen] = useState(false);
 
   const handleLogout = () => {
     sessionStorage.removeItem("auth-token");
@@ -121,6 +130,8 @@ const DashboardPage = () => {
         date: new Date().toISOString().split("T")[0],
         description: "",
       });
+      setIsIncomeOpen(false);
+      setIsExpenseOpen(false);
     } catch (error) {
       toast({
         title: "Error adding transaction",
@@ -158,13 +169,12 @@ const DashboardPage = () => {
     }
   };
 
-  // Fetch transactions when the component mounts
   useEffect(() => {
     fetchTransactions();
   }, []);
 
   return (
-    <Box>
+    <Box bg="black" color="white">
       <Navbar onLogout={handleLogout} />
       <Box
         bg="linear-gradient(to right, #1a1a1d, #0C0F15)"
@@ -217,138 +227,226 @@ const DashboardPage = () => {
           shadow="xl"
           p={6}
         >
-          <Heading
-            fontSize={["lg", "xl", "2xl"]}
-            textAlign="center"
-            mb={4}
-            color="gray.700"
-          >
-            Add Transaction
-          </Heading>
-
-          <VStack spacing={4}>
-            <Input
-              placeholder="Amount"
-              type="number"
-              value={newTransaction.amount}
-              onChange={(e) =>
-                setNewTransaction({ ...newTransaction, amount: e.target.value })
-              }
-              borderColor="green.500"
-              _hover={{ borderColor: "green.700" }}
-              _focus={{ borderColor: "green.900" }}
-              fontSize={["sm", "md", "lg"]}
-            />
-            <Select
-              value={newTransaction.type}
-              onChange={(e) =>
-                setNewTransaction({ ...newTransaction, type: e.target.value })
-              }
-              borderColor={
-                newTransaction.type === "INCOME" ? "green.500" : "red.500"
-              }
-              bg={newTransaction.type === "INCOME" ? "green.100" : "red.100"}
-              color={newTransaction.type === "INCOME" ? "green.800" : "red.800"}
-              _hover={{
-                borderColor:
-                  newTransaction.type === "INCOME" ? "green.700" : "red.700",
-              }}
-              _focus={{
-                borderColor:
-                  newTransaction.type === "INCOME" ? "green.900" : "red.900",
-              }}
-              fontSize={["sm", "md", "lg"]}
-            >
-              <option value="INCOME">Income</option>
-              <option value="EXPENSE">Expense</option>
-            </Select>
-            <Input
-              type="date"
-              value={newTransaction.date}
-              onChange={(e) =>
-                setNewTransaction({ ...newTransaction, date: e.target.value })
-              }
-              borderColor="purple.500"
-              _hover={{ borderColor: "purple.700" }}
-              _focus={{ borderColor: "purple.900" }}
-              fontSize={["sm", "md", "lg"]}
-            />
-            <Input
-              placeholder="Description"
-              value={newTransaction.description}
-              onChange={(e) =>
-                setNewTransaction({
-                  ...newTransaction,
-                  description: e.target.value,
-                })
-              }
-              borderColor="orange.500"
-              _hover={{ borderColor: "orange.700" }}
-              _focus={{ borderColor: "orange.900" }}
-              fontSize={["sm", "md", "lg"]}
-            />
-
+          <Flex justifyContent="space-around" mb={4}>
             <Button
-              bg="black"
+              bg="green.500"
               color="white"
               borderRadius="full"
               _hover={{
-                bg: "white",
-                color: "black",
-                border: "2px solid black",
+                bg: "green.700",
               }}
-              w="40%"
-              fontSize={["13px", "md", "lg"]}
-              onClick={handleAddTransaction}
+              onClick={() => setIsIncomeOpen(true)}
             >
-              Add Transaction
+              Income
             </Button>
-          </VStack>
-        </Box>
+            <Button
+              bg="red.500"
+              color="white"
+              borderRadius="full"
+              _hover={{
+                bg: "red.700",
+              }}
+              onClick={() => setIsExpenseOpen(true)}
+            >
+              Expense
+            </Button>
+            <Button
+              bg="blue.500"
+              color="white"
+              borderRadius="full"
+              _hover={{
+                bg: "blue.700",
+              }}
+              onClick={() => { }}
+            >
+              Summary
+            </Button>
+          </Flex>
 
-        <Box mt={8} w="100%" maxW="600px">
-          <Heading
-            fontSize={["lg", "xl", "2xl"]}
-            textAlign="center"
-            mb={4}
-            color="gray.700"
-          >
-            Transactions
-          </Heading>
-          <VStack spacing={4}>
-            {transactions.map((transaction) => (
-              <Box
-                key={transaction.id}
-                p={4}
-                borderRadius="md"
-                shadow="md"
-                bg={transaction.type === "INCOME" ? "green.100" : "red.100"}
-                color={transaction.type === "INCOME" ? "green.800" : "red.800"}
-                w="100%"
-              >
-                <Flex justify="space-between" align="center">
-                  <Box>
-                    <Text fontWeight="bold" fontSize={["sm", "md", "lg"]}>
-                      ${transaction.amount} - {transaction.type}
-                    </Text>
-                    <Text fontSize={["xs", "sm", "md"]}>
-                      {transaction.description}
-                    </Text>
-                    <Text fontSize={["xs", "sm", "md"]} color="gray.500">
-                      {format(new Date(transaction.date), "dd/MM/yyyy")}
-                    </Text>
-                  </Box>
-                  <IconButton
-                    aria-label="Delete transaction"
-                    icon={<DeleteIcon />}
-                    colorScheme="red"
-                    size="sm"
-                    onClick={() => handleDeleteTransaction(transaction.id)}
+          <Modal isOpen={isIncomeOpen} onClose={() => setIsIncomeOpen(false)}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Add Income</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <VStack spacing={4}>
+                  <Input
+                    placeholder="Amount"
+                    type="number"
+                    value={newTransaction.amount}
+                    onChange={(e) =>
+                      setNewTransaction({
+                        ...newTransaction,
+                        amount: e.target.value,
+                        type: "INCOME",
+                      })
+                    }
+                    borderColor="green.500"
+                    _hover={{ borderColor: "green.700" }}
+                    _focus={{ borderColor: "green.900" }}
+                    fontSize={["sm", "md", "lg"]}
                   />
-                </Flex>
-              </Box>
-            ))}
-          </VStack>
+                  <Input
+                    type="date"
+                    value={newTransaction.date}
+                    onChange={(e) =>
+                      setNewTransaction({
+                        ...newTransaction,
+                        date: e.target.value,
+                      })
+                    }
+                    borderColor="purple.500"
+                    _hover={{ borderColor: "purple.700" }}
+                    _focus={{ borderColor: "purple.900" }}
+                    fontSize={["sm", "md", "lg"]}
+                  />
+                  <Input
+                    placeholder="Description"
+                    value={newTransaction.description}
+                    onChange={(e) =>
+                      setNewTransaction({
+                        ...newTransaction,
+                        description: e.target.value,
+                      })
+                    }
+                    borderColor="orange.500"
+                    _hover={{ borderColor: "orange.700" }}
+                    _focus={{ borderColor: "orange.900" }}
+                    fontSize={["sm", "md", "lg"]}
+                  />
+                </VStack>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  bg="green.500"
+                  color="white"
+                  borderRadius="full"
+                  _hover={{
+                    bg: "green.700",
+                  }}
+                  onClick={handleAddTransaction}
+                >
+                  Add Income
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+
+          <Modal isOpen={isExpenseOpen} onClose={() => setIsExpenseOpen(false)}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Add Expense</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <VStack spacing={4}>
+                  <Input
+                    placeholder="Amount"
+                    type="number"
+                    value={newTransaction.amount}
+                    onChange={(e) =>
+                      setNewTransaction({
+                        ...newTransaction,
+                        amount: e.target.value,
+                        type: "EXPENSE",
+                      })
+                    }
+                    borderColor="red.500"
+                    _hover={{ borderColor: "red.700" }}
+                    _focus={{ borderColor: "red.900" }}
+                    fontSize={["sm", "md", "lg"]}
+                  />
+                  <Input
+                    type="date"
+                    value={newTransaction.date}
+                    onChange={(e) =>
+                      setNewTransaction({
+                        ...newTransaction,
+                        date: e.target.value,
+                      })
+                    }
+                    borderColor="purple.500"
+                    _hover={{ borderColor: "purple.700" }}
+                    _focus={{ borderColor: "purple.900" }}
+                    fontSize={["sm", "md", "lg"]}
+                  />
+                  <Input
+                    placeholder="Description"
+                    value={newTransaction.description}
+                    onChange={(e) =>
+                      setNewTransaction({
+                        ...newTransaction,
+                        description: e.target.value,
+                      })
+                    }
+                    borderColor="orange.500"
+                    _hover={{ borderColor: "orange.700" }}
+                    _focus={{ borderColor: "orange.900" }}
+                    fontSize={["sm", "md", "lg"]}
+                  />
+                </VStack>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  bg="red.500"
+                  color="white"
+                  borderRadius="full"
+                  _hover={{
+                    bg: "red.700",
+                  }}
+                  onClick={handleAddTransaction}
+                >
+                  Add Expense
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+
+          <Box mt={8} w="100%" maxW="600px">
+            <Heading
+              fontSize={["lg", "xl", "2xl"]}
+              textAlign="center"
+              mb={4}
+              color="gray.700"
+            >
+              Transactions
+            </Heading>
+            <VStack spacing={4}>
+              {transactions.map((transaction) => (
+                <Box
+                  key={transaction.id}
+                  p={4}
+                  borderRadius="md"
+                  shadow="md"
+                  bg={transaction.type === "INCOME" ? "green.100" : "red.100"}
+                  color={
+                    transaction.type === "INCOME" ? "green.800" : "red.800"
+                  }
+                  w="100%"
+                >
+                  <Flex justify="space-between" align="center">
+                    <Box>
+                      <Text fontWeight="bold" fontSize={["sm", "md", "lg"]}>
+                        ${transaction.amount} - {transaction.type}
+                      </Text>
+                      <Text fontSize={["xs", "sm", "md"]}>
+                        {transaction.description}
+                      </Text>
+                      <Text fontSize={["xs", "sm", "md"]} color="gray.500">
+                        {format(new Date(transaction.date), "dd/MM/yyyy")}
+                      </Text>
+                    </Box>
+                    <IconButton
+                      aria-label="Delete transaction"
+                      icon={<DeleteIcon />}
+                      colorScheme="red"
+                      size="sm"
+                      onClick={() => handleDeleteTransaction(transaction.id)}
+                    />
+                  </Flex>
+                </Box>
+              ))}
+            </VStack>
+          </Box>
         </Box>
       </Box>
       <Footer />
