@@ -18,6 +18,7 @@ import {
   ModalCloseButton,
   Circle,
   Text as ChakraText,
+  Spinner,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import axios from "axios";
@@ -48,6 +49,7 @@ const DashboardPage = () => {
   const [isExpenseOpen, setIsExpenseOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [isViewAllOpen, setIsViewAllOpen] = useState(false); // State for View All modal
+  const [isLoading, setIsLoading] = useState(false); // State for loading spinner
 
   const handleLogout = () => {
     sessionStorage.removeItem("auth-token");
@@ -110,6 +112,7 @@ const DashboardPage = () => {
       return;
     }
 
+    setIsLoading(true); // Start loading spinner
     try {
       await axios.post(
         "https://spendee-track-spending-easily.onrender.com/finance/transaction",
@@ -142,12 +145,15 @@ const DashboardPage = () => {
         duration: 5000,
         isClosable: true,
       });
+    } finally {
+      setIsLoading(false); // Stop loading spinner
     }
   };
 
   const handleDeleteTransaction = async () => {
     if (deleteId === null) return;
 
+    setIsLoading(true); // Start loading spinner
     try {
       await axios.delete(
         `https://spendee-track-spending-easily.onrender.com/finance/transaction/${deleteId}`,
@@ -172,6 +178,8 @@ const DashboardPage = () => {
         duration: 5000,
         isClosable: true,
       });
+    } finally {
+      setIsLoading(false); // Stop loading spinner
     }
   };
 
@@ -338,6 +346,7 @@ const DashboardPage = () => {
                     bg: "green.700",
                   }}
                   onClick={handleAddTransaction}
+                  isLoading={isLoading}
                 >
                   Add Income
                 </Button>
@@ -407,6 +416,7 @@ const DashboardPage = () => {
                     bg: "red.700",
                   }}
                   onClick={handleAddTransaction}
+                  isLoading={isLoading}
                 >
                   Add Expense
                 </Button>
@@ -475,7 +485,7 @@ const DashboardPage = () => {
                         {format(new Date(transaction.date), "dd/MM/yyyy")}
                       </ChakraText>
                     </Box>
-                    <Box flex={1} marginLeft="70px">
+                    <Box flex={1} marginLeft="auto" marginRight="4">
                       <ChakraText
                         fontWeight="bold"
                         fontSize={["lg", "xl", "2xl"]}
@@ -484,12 +494,14 @@ const DashboardPage = () => {
                             ? "green.500"
                             : "red.500"
                         }
+                        textAlign="right"
                       >
                         ${transaction.amount}
                       </ChakraText>
                       <ChakraText
                         fontSize={["xs", "sm", "md"]}
                         color="gray.500"
+                        textAlign="right"
                       >
                         {transaction.type}
                       </ChakraText>
@@ -514,7 +526,11 @@ const DashboardPage = () => {
             <Button mr={3} onClick={() => setDeleteId(null)}>
               Cancel
             </Button>
-            <Button colorScheme="red" onClick={handleDeleteTransaction}>
+            <Button
+              colorScheme="red"
+              onClick={handleDeleteTransaction}
+              isLoading={isLoading}
+            >
               Delete
             </Button>
           </ModalFooter>
@@ -566,7 +582,7 @@ const DashboardPage = () => {
                         {format(new Date(transaction.date), "dd/MM/yyyy")}
                       </ChakraText>
                     </Box>
-                    <Box flex={1} marginLeft="70px">
+                    <Box flex={1} marginLeft="auto" marginRight="4">
                       <ChakraText
                         fontWeight="bold"
                         fontSize={["lg", "xl", "2xl"]}
@@ -575,12 +591,14 @@ const DashboardPage = () => {
                             ? "green.500"
                             : "red.500"
                         }
+                        textAlign="right"
                       >
                         ${transaction.amount}
                       </ChakraText>
                       <ChakraText
                         fontSize={["xs", "sm", "md"]}
                         color="gray.500"
+                        textAlign="right"
                       >
                         {transaction.type}
                       </ChakraText>
