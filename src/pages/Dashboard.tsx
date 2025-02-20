@@ -7,7 +7,6 @@ import {
   Input,
   VStack,
   useToast,
-  IconButton,
   Flex,
   Modal,
   ModalOverlay,
@@ -17,15 +16,18 @@ import {
   ModalBody,
   ModalCloseButton,
   Circle,
+  IconButton,
   Text as ChakraText,
   Spinner,
+  Icon,
 } from "@chakra-ui/react";
-import { DeleteIcon } from "@chakra-ui/icons";
+import { FaUpload, FaDownload } from "react-icons/fa"; // Importing from react-icons
 import axios from "axios";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import Navbar from "../components/navbar2";
 import Footer from "../components/Footer";
+import { DeleteIcon } from "@chakra-ui/icons";
 
 interface Transaction {
   id: number;
@@ -250,37 +252,34 @@ const DashboardPage = () => {
         >
           <Flex justifyContent="space-around" mb={4}>
             <Button
-              bg="green.500"
+              bg="#1a1a1d"
               color="white"
               borderRadius="full"
               _hover={{
-                bg: "green.700",
+                bg: "#0C0F15",
               }}
               onClick={() => setIsIncomeOpen(true)}
+              leftIcon={<Icon as={FaDownload} color="green.500" />} // Using custom icon with color
+              size="lg"
+              height="60px"
+              width="160px"
             >
               Income
             </Button>
             <Button
-              bg="red.500"
+              bg="#1a1a1d"
               color="white"
               borderRadius="full"
               _hover={{
-                bg: "red.700",
+                bg: "#0C0F15",
               }}
               onClick={() => setIsExpenseOpen(true)}
+              leftIcon={<Icon as={FaUpload} color="red.500" />} // Using custom icon with color
+              size="lg"
+              height="60px"
+              width="160px"
             >
-              Expense
-            </Button>
-            <Button
-              bg="blue.500"
-              color="white"
-              borderRadius="full"
-              _hover={{
-                bg: "blue.700",
-              }}
-              onClick={() => { }}
-            >
-              Summary
+              Outcome
             </Button>
           </Flex>
 
@@ -347,6 +346,7 @@ const DashboardPage = () => {
                   }}
                   onClick={handleAddTransaction}
                   isLoading={isLoading}
+                  size="lg"
                 >
                   Add Income
                 </Button>
@@ -417,6 +417,7 @@ const DashboardPage = () => {
                   }}
                   onClick={handleAddTransaction}
                   isLoading={isLoading}
+                  size="lg"
                 >
                   Add Expense
                 </Button>
@@ -441,6 +442,9 @@ const DashboardPage = () => {
                   bg: "gray.700",
                 }}
                 onClick={() => setIsViewAllOpen(true)}
+                size="sm" // Reduced size
+                height="40px"
+                width="100px"
               >
                 View All
               </Button>
@@ -607,7 +611,7 @@ const DashboardPage = () => {
                       aria-label="Delete transaction"
                       icon={<DeleteIcon />}
                       colorScheme="red"
-                      size="xs"
+                      size="sm"
                       onClick={() => setDeleteId(transaction.id)}
                       position="absolute"
                       right={4}
