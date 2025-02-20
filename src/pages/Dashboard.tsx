@@ -18,6 +18,9 @@ import {
   ModalCloseButton,
   Circle,
   Text as ChakraText,
+  SimpleGrid,
+  GridItem,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import axios from "axios";
@@ -47,6 +50,7 @@ const DashboardPage = () => {
   const [isIncomeOpen, setIsIncomeOpen] = useState(false);
   const [isExpenseOpen, setIsExpenseOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [isViewAllOpen, setIsViewAllOpen] = useState(false); // State for View All modal
 
   const handleLogout = () => {
     sessionStorage.removeItem("auth-token");
@@ -414,16 +418,28 @@ const DashboardPage = () => {
           </Modal>
 
           <Box mt={8} w="100%" maxW="600px">
-            <Heading
-              fontSize={["lg", "xl", "2xl"]}
-              textAlign="center"
-              mb={4}
-              color="gray.700"
-            >
-              Transactions
-            </Heading>
+            <Flex justifyContent="space-between" mb={4}>
+              <Heading
+                fontSize={["lg", "xl", "2xl"]}
+                textAlign="center"
+                color="gray.700"
+              >
+                Transactions
+              </Heading>
+              <Button
+                bg="gray.500"
+                color="white"
+                borderRadius="full"
+                _hover={{
+                  bg: "gray.700",
+                }}
+                onClick={() => setIsViewAllOpen(true)}
+              >
+                View All
+              </Button>
+            </Flex>
             <VStack spacing={4}>
-              {transactions.map((transaction) => (
+              {transactions.slice(0, 8).map((transaction) => (
                 <Box
                   key={transaction.id}
                   p={4}
@@ -497,9 +513,7 @@ const DashboardPage = () => {
           </Box>
         </Box>
       </Box>
-      <Box position="fixed" bottom={0} w="100%">
-        <Footer />
-      </Box>
+      <Footer />
       <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)}>
         <ModalOverlay />
         <ModalContent>
@@ -514,6 +528,92 @@ const DashboardPage = () => {
             </Button>
             <Button colorScheme="red" onClick={handleDeleteTransaction}>
               Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isViewAllOpen} onClose={() => setIsViewAllOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>View All Transactions</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody overflowY="auto" maxHeight="80vh">
+            <VStack spacing={4}>
+              {transactions.map((transaction) => (
+                <Box
+                  key={transaction.id}
+                  p={4}
+                  borderRadius="md"
+                  shadow="md"
+                  bg="black"
+                  color="white"
+                  w="100%"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  border="1px solid #333"
+                  position="relative"
+                >
+                  <Flex justifyContent="space-between" alignItems="center">
+                    <Box>
+                      <Circle
+                        size="10px"
+                        bg={
+                          transaction.type === "INCOME"
+                            ? "green.500"
+                            : "red.500"
+                        }
+                      />
+                    </Box>
+                    <Box flex={1} marginLeft="20px">
+                      <ChakraText
+                        fontWeight="bold"
+                        fontSize={["sm", "md", "lg"]}
+                      >
+                        {transaction.description}
+                      </ChakraText>
+                      <ChakraText
+                        fontSize={["xs", "sm", "md"]}
+                        color="gray.500"
+                      >
+                        {format(new Date(transaction.date), "dd/MM/yyyy")}
+                      </ChakraText>
+                    </Box>
+                    <Box flex={1} marginLeft="70px">
+                      <ChakraText
+                        fontWeight="bold"
+                        fontSize={["lg", "xl", "2xl"]}
+                        color={
+                          transaction.type === "INCOME"
+                            ? "green.500"
+                            : "red.500"
+                        }
+                      >
+                        ${transaction.amount}
+                      </ChakraText>
+                      <ChakraText
+                        fontSize={["xs", "sm", "md"]}
+                        color="gray.500"
+                      >
+                        {transaction.type}
+                      </ChakraText>
+                    </Box>
+                    <IconButton
+                      aria-label="Delete transaction"
+                      icon={<DeleteIcon />}
+                      colorScheme="red"
+                      size="xs"
+                      onClick={() => setDeleteId(transaction.id)}
+                      position="absolute"
+                      right={4}
+                    />
+                  </Flex>
+                </Box>
+              ))}
+            </VStack>
+          </ModalBody>
+          <ModalFooter position="fixed" bottom={0} w="100%" bg="gray.800" p={4}>
+            <Button onClick={() => setIsViewAllOpen(false)} colorScheme="blue">
+              Close
             </Button>
           </ModalFooter>
         </ModalContent>
