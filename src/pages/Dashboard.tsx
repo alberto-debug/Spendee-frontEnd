@@ -18,9 +18,6 @@ import {
   ModalCloseButton,
   Circle,
   Text as ChakraText,
-  SimpleGrid,
-  GridItem,
-  useBreakpointValue,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import axios from "axios";
@@ -497,15 +494,6 @@ const DashboardPage = () => {
                         {transaction.type}
                       </ChakraText>
                     </Box>
-                    <IconButton
-                      aria-label="Delete transaction"
-                      icon={<DeleteIcon />}
-                      colorScheme="red"
-                      size="xs"
-                      onClick={() => setDeleteId(transaction.id)}
-                      position="absolute"
-                      right={4}
-                    />
                   </Flex>
                 </Box>
               ))}
