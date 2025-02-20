@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Heading,
@@ -157,6 +157,11 @@ const DashboardPage = () => {
       });
     }
   };
+
+  // Fetch transactions when the component mounts
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
 
   return (
     <Box>
