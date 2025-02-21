@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Box,
   Container,
@@ -52,6 +50,7 @@ const Footer = () => {
           justify="space-between"
           gap={8}
           mb={10}
+          display={{ base: "none", md: "flex" }} // Hide on small screens, show on larger screens
         >
           {features.map((feature, index) => (
             <MotionBox
