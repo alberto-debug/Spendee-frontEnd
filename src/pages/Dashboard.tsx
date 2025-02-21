@@ -8,6 +8,18 @@ import {
   VStack,
   useToast,
   Flex,
+  Circle,
+  IconButton,
+  Text as ChakraText,
+  Spinner,
+  Icon,
+  Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -15,11 +27,6 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Circle,
-  IconButton,
-  Text as ChakraText,
-  Spinner,
-  Icon,
 } from "@chakra-ui/react";
 import { FaUpload, FaDownload } from "react-icons/fa"; // Importing from react-icons
 import axios from "axios";
@@ -50,7 +57,7 @@ const DashboardPage = () => {
   const [isIncomeOpen, setIsIncomeOpen] = useState(false);
   const [isExpenseOpen, setIsExpenseOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [isViewAllOpen, setIsViewAllOpen] = useState(false); // State for View All modal
+  const [isViewAllOpen, setIsViewAllOpen] = useState(false); // State for View All drawer
   const [isLoading, setIsLoading] = useState(false); // State for loading spinner
 
   const handleLogout = () => {
@@ -284,7 +291,7 @@ const DashboardPage = () => {
                   bg: "#1a1a1d",
                 }}
                 onClick={() => setIsExpenseOpen(true)}
-                leftIcon={<Icon as={FaUpload} color="red.500" />} // Using custom icon with color
+                leftIcon={<Icon as={FaUpload} color="red.500" />}
                 size="lg"
                 height="90px"
                 width="130px"
@@ -523,6 +530,15 @@ const DashboardPage = () => {
                           {transaction.type}
                         </ChakraText>
                       </Box>
+                      <IconButton
+                        aria-label="Delete transaction"
+                        icon={<DeleteIcon />}
+                        colorScheme="red"
+                        size="sm"
+                        onClick={() => setDeleteId(transaction.id)}
+                        position="absolute"
+                        right={4}
+                      />
                     </Flex>
                   </Box>
                 ))}
@@ -531,34 +547,19 @@ const DashboardPage = () => {
           </Box>
         </Box>
         <Footer />
-        <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Delete Transaction</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Text>Are you sure you want to delete this transaction?</Text>
-            </ModalBody>
-            <ModalFooter>
-              <Button mr={3} onClick={() => setDeleteId(null)}>
-                Cancel
-              </Button>
-              <Button
-                colorScheme="red"
-                onClick={handleDeleteTransaction}
-                isLoading={isLoading}
-              >
-                Delete
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-        <Modal isOpen={isViewAllOpen} onClose={() => setIsViewAllOpen(false)}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>View All Transactions</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody overflowY="auto" maxHeight="80vh">
+        <Drawer
+          isOpen={isViewAllOpen}
+          placement="bottom"
+          onClose={() => setIsViewAllOpen(false)}
+          size="full"
+        >
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerCloseButton />
+            <DrawerHeader borderBottomWidth="1px">
+              View All Transactions
+            </DrawerHeader>
+            <DrawerBody>
               <VStack spacing={4}>
                 {transactions.map((transaction) => (
                   <Box
@@ -633,19 +634,35 @@ const DashboardPage = () => {
                   </Box>
                 ))}
               </VStack>
-            </ModalBody>
-            <ModalFooter
-              position="fixed"
-              bottom={0}
-              w="100%"
-              bg="gray.800"
-              p={4}
-            >
+            </DrawerBody>
+            <DrawerFooter>
               <Button
                 onClick={() => setIsViewAllOpen(false)}
                 colorScheme="blue"
               >
                 Close
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+        <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Delete Transaction</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Text>Are you sure you want to delete this transaction?</Text>
+            </ModalBody>
+            <ModalFooter>
+              <Button mr={3} onClick={() => setDeleteId(null)}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={handleDeleteTransaction}
+                isLoading={isLoading}
+              >
+                Delete
               </Button>
             </ModalFooter>
           </ModalContent>
