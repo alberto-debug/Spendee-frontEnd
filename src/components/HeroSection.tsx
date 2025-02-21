@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useState } from "react";
 import {
@@ -64,7 +62,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ balance }) => {
                 as="h1"
                 fontSize={{ base: "4xl", md: "5xl", lg: "6xl" }}
                 fontWeight="bold"
-                bgGradient="linear(to-r, #00ff88, #00ff5f)"
+                bgGradient="linear(to-r, #00ff5f, #B3EA1B 100%)"
                 bgClip="text"
                 lineHeight="1.2"
               >
