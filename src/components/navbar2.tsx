@@ -48,7 +48,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
 
         <IconButton
           icon={<FaSignOutAlt />}
-          colorScheme="red"
+          colorScheme="black"
+          border="1px solid grey"
           variant="solid"
           onClick={onLogout}
           aria-label="Logout"
