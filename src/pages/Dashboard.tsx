@@ -20,6 +20,8 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
+  Container,
+  Select,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -27,11 +29,10 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Container,
 } from "@chakra-ui/react";
 import { FaUpload, FaDownload } from "react-icons/fa"; // Importing from react-icons
 import axios from "axios";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { motion } from "framer-motion";
 import Navbar from "../components/navbar2";
 import Footer from "../components/Footer";
@@ -61,6 +62,8 @@ const DashboardPage = () => {
   const [isViewAllOpen, setIsViewAllOpen] = useState(false); // State for View All drawer
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State for delete confirmation modal
   const [isLoading, setIsLoading] = useState(false); // State for loading spinner
+  const [filterDate, setFilterDate] = useState<string | null>(null);
+  const [filterType, setFilterType] = useState<string | null>(null);
 
   const handleLogout = () => {
     sessionStorage.removeItem("auth-token");
@@ -204,6 +207,15 @@ const DashboardPage = () => {
   useEffect(() => {
     fetchTransactions();
   }, []);
+
+  const filteredTransactions = transactions.filter((transaction) => {
+    const dateMatches =
+      !filterDate ||
+      new Date(transaction.date).toDateString() ===
+      new Date(filterDate).toDateString();
+    const typeMatches = !filterType || transaction.type === filterType;
+    return dateMatches && typeMatches;
+  });
 
   return (
     <Box>
@@ -621,8 +633,37 @@ const DashboardPage = () => {
             </DrawerHeader>
             <DrawerBody>
               <Container maxW="container.lg">
+                <Flex mb={4}>
+                  <Box mr={4}>
+                    <Text color="white">Filter by Date:</Text>
+                    <Input
+                      type="date"
+                      value={filterDate || ""}
+                      onChange={(e) => setFilterDate(e.target.value || null)}
+                      borderColor="whiteAlpha.500"
+                      _hover={{ borderColor: "whiteAlpha.700" }}
+                      _focus={{ borderColor: "whiteAlpha.900" }}
+                      color="white"
+                    />
+                  </Box>
+                  <Box>
+                    <Text color="white">Filter by Type:</Text>
+                    <Select
+                      value={filterType || ""}
+                      onChange={(e) => setFilterType(e.target.value || null)}
+                      borderColor="whiteAlpha.500"
+                      _hover={{ borderColor: "whiteAlpha.700" }}
+                      _focus={{ borderColor: "whiteAlpha.900" }}
+                      color="white"
+                    >
+                      <option value="">All</option>
+                      <option value="INCOME">Income</option>
+                      <option value="EXPENSE">Expense</option>
+                    </Select>
+                  </Box>
+                </Flex>
                 <VStack spacing={4} align="stretch">
-                  {transactions.map((transaction) => (
+                  {filteredTransactions.map((transaction) => (
                     <Box
                       key={transaction.id}
                       p={4}
