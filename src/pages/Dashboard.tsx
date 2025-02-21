@@ -27,6 +27,7 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
+  Container,
 } from "@chakra-ui/react";
 import { FaUpload, FaDownload } from "react-icons/fa"; // Importing from react-icons
 import axios from "axios";
@@ -58,6 +59,7 @@ const DashboardPage = () => {
   const [isExpenseOpen, setIsExpenseOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [isViewAllOpen, setIsViewAllOpen] = useState(false); // State for View All drawer
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State for delete confirmation modal
   const [isLoading, setIsLoading] = useState(false); // State for loading spinner
 
   const handleLogout = () => {
@@ -180,6 +182,7 @@ const DashboardPage = () => {
       });
       fetchTransactions();
       setDeleteId(null);
+      setIsDeleteModalOpen(false);
     } catch (error) {
       toast({
         title: "Error removing transaction",
@@ -300,6 +303,7 @@ const DashboardPage = () => {
               </Button>
             </Flex>
 
+            {/* Add Income Modal */}
             <Modal isOpen={isIncomeOpen} onClose={() => setIsIncomeOpen(false)}>
               <ModalOverlay />
               <ModalContent maxW="300px">
@@ -371,6 +375,7 @@ const DashboardPage = () => {
               </ModalContent>
             </Modal>
 
+            {/* Add Expense Modal */}
             <Modal
               isOpen={isExpenseOpen}
               onClose={() => setIsExpenseOpen(false)}
@@ -445,108 +450,88 @@ const DashboardPage = () => {
               </ModalContent>
             </Modal>
 
-            <Box mt={8} w="100%" maxW="600px">
-              <Flex justifyContent="space-between" mb={4}>
-                <Heading
-                  fontSize={["lg", "xl", "2xl"]}
-                  textAlign="center"
-                  color="gray.700"
-                >
-                  Transactions
-                </Heading>
-                <Button
-                  bg="gray.500"
-                  color="white"
-                  borderRadius="full"
-                  _hover={{
-                    bg: "gray.700",
-                  }}
-                  onClick={() => setIsViewAllOpen(true)}
-                  size="sm" // Reduced size
-                  height="40px"
-                  width="100px"
-                >
-                  View All
-                </Button>
-              </Flex>
-              <VStack spacing={4}>
-                {transactions.slice(0, 8).map((transaction) => (
-                  <Box
-                    key={transaction.id}
-                    p={4}
-                    borderRadius="md"
-                    shadow="md"
-                    bg="black"
-                    color="white"
-                    w="100%"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    border="1px solid #333"
-                    position="relative"
+            <VStack spacing={8}>
+              {/* Transactions List */}
+              <Box w="100%">
+                <Flex justify="space-between" align="center" mb={4}>
+                  <Heading size="lg" color="white">
+                    Transactions
+                  </Heading>
+                  <Button
+                    colorScheme="blue"
+                    size="sm"
+                    onClick={() => setIsViewAllOpen(true)}
                   >
-                    <Flex justifyContent="space-between" alignItems="center">
-                      <Box>
-                        <Circle
-                          size="10px"
-                          bg={
-                            transaction.type === "INCOME"
-                              ? "green.500"
-                              : "red.500"
-                          }
-                        />
-                      </Box>
-                      <Box flex={1} marginLeft="20px">
-                        <ChakraText
-                          fontWeight="bold"
-                          fontSize={["sm", "md", "lg"]}
-                        >
-                          {transaction.description}
-                        </ChakraText>
-                        <ChakraText
-                          fontSize={["xs", "sm", "md"]}
-                          color="gray.500"
-                        >
-                          {format(new Date(transaction.date), "dd/MM/yyyy")}
-                        </ChakraText>
-                      </Box>
-                      <Box flex={1} marginLeft="auto" marginRight="4">
-                        <ChakraText
-                          fontWeight="bold"
-                          fontSize={["lg", "xl", "2xl"]}
-                          color={
-                            transaction.type === "INCOME"
-                              ? "green.500"
-                              : "red.500"
-                          }
-                          textAlign="right"
-                        >
-                          ${transaction.amount}
-                        </ChakraText>
-                        <ChakraText
-                          fontSize={["xs", "sm", "md"]}
-                          color="gray.500"
-                          textAlign="right"
-                        >
-                          {transaction.type}
-                        </ChakraText>
-                      </Box>
-                      <IconButton
-                        aria-label="Delete transaction"
-                        icon={<DeleteIcon />}
-                        colorScheme="red"
-                        size="sm"
-                        onClick={() => setDeleteId(transaction.id)}
-                        position="absolute"
-                        right={4}
-                      />
-                    </Flex>
-                  </Box>
-                ))}
-              </VStack>
-            </Box>
+                    View All
+                  </Button>
+                </Flex>
+
+                {/* Display a limited number of transactions on the dashboard */}
+                <VStack spacing={4} align="stretch">
+                  {transactions.slice(0, 5).map((transaction) => (
+                    <Box
+                      key={transaction.id}
+                      p={4}
+                      borderRadius="md"
+                      bg="gray.800"
+                      border="1px solid"
+                      borderColor="whiteAlpha.200"
+                      transition="all 0.2s"
+                      _hover={{
+                        borderColor: "whiteAlpha.400",
+                        transform: "translateY(-2px)",
+                      }}
+                    >
+                      <Flex justify="space-between" align="center">
+                        <Flex align="center" flex={1}>
+                          <Circle
+                            size="10px"
+                            bg={
+                              transaction.type === "INCOME"
+                                ? "green.500"
+                                : "red.500"
+                            }
+                            mr={4}
+                          />
+                          <Box>
+                            <Text
+                              fontWeight="bold"
+                              fontSize={{ base: "sm", md: "md" }}
+                            >
+                              {transaction.description}
+                            </Text>
+                            <Text fontSize="sm" color="gray.400">
+                              {format(new Date(transaction.date), "dd/MM/yyyy")}
+                            </Text>
+                          </Box>
+                        </Flex>
+                        <Box textAlign="right">
+                          <Text
+                            fontWeight="bold"
+                            fontSize={{ base: "md", md: "lg" }}
+                            color={
+                              transaction.type === "INCOME"
+                                ? "green.500"
+                                : "red.500"
+                            }
+                          >
+                            ${transaction.amount}
+                          </Text>
+                          <Text fontSize="sm" color="gray.400">
+                            {transaction.type}
+                          </Text>
+                        </Box>
+                      </Flex>
+                    </Box>
+                  ))}
+                </VStack>
+              </Box>
+            </VStack>
           </Box>
         </Box>
         <Footer />
+
+        {/* View All Drawer */}
         <Drawer
           isOpen={isViewAllOpen}
           placement="bottom"
@@ -554,107 +539,132 @@ const DashboardPage = () => {
           size="full"
         >
           <DrawerOverlay />
-          <DrawerContent>
-            <DrawerCloseButton />
-            <DrawerHeader borderBottomWidth="1px">
-              View All Transactions
+          <DrawerContent
+            bg="gray.900"
+            maxH="80vh"
+            mx="auto"
+            mt="auto"
+            borderTopRadius="20px"
+            w={{ base: "100%", md: "75%", lg: "65%" }}
+          >
+            <DrawerCloseButton color="white" />
+            <DrawerHeader borderBottomWidth="1px" borderColor="whiteAlpha.200">
+              <Container maxW="container.lg">
+                <Heading size="lg" color="white">
+                  All Transactions
+                </Heading>
+              </Container>
             </DrawerHeader>
             <DrawerBody>
-              <VStack spacing={4}>
-                {transactions.map((transaction) => (
-                  <Box
-                    key={transaction.id}
-                    p={4}
-                    borderRadius="md"
-                    shadow="md"
-                    bg="black"
-                    color="white"
-                    w="100%"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    border="1px solid #333"
-                    position="relative"
-                  >
-                    <Flex justifyContent="space-between" alignItems="center">
-                      <Box>
-                        <Circle
-                          size="10px"
-                          bg={
-                            transaction.type === "INCOME"
-                              ? "green.500"
-                              : "red.500"
-                          }
-                        />
-                      </Box>
-                      <Box flex={1} marginLeft="20px">
-                        <ChakraText
-                          fontWeight="bold"
-                          fontSize={["sm", "md", "lg"]}
-                        >
-                          {transaction.description}
-                        </ChakraText>
-                        <ChakraText
-                          fontSize={["xs", "sm", "md"]}
-                          color="gray.500"
-                        >
-                          {format(new Date(transaction.date), "dd/MM/yyyy")}
-                        </ChakraText>
-                      </Box>
-                      <Box flex={1} marginLeft="auto" marginRight="4">
-                        <ChakraText
-                          fontWeight="bold"
-                          fontSize={["lg", "xl", "2xl"]}
-                          color={
-                            transaction.type === "INCOME"
-                              ? "green.500"
-                              : "red.500"
-                          }
-                          textAlign="right"
-                        >
-                          ${transaction.amount}
-                        </ChakraText>
-                        <ChakraText
-                          fontSize={["xs", "sm", "md"]}
-                          color="gray.500"
-                          textAlign="right"
-                        >
-                          {transaction.type}
-                        </ChakraText>
-                      </Box>
-                      <IconButton
-                        aria-label="Delete transaction"
-                        icon={<DeleteIcon />}
-                        colorScheme="red"
-                        size="sm"
-                        onClick={() => setDeleteId(transaction.id)}
-                        position="absolute"
-                        right={4}
-                      />
-                    </Flex>
-                  </Box>
-                ))}
-              </VStack>
+              <Container maxW="container.lg">
+                <VStack spacing={4} align="stretch">
+                  {transactions.map((transaction) => (
+                    <Box
+                      key={transaction.id}
+                      p={4}
+                      borderRadius="md"
+                      bg="gray.800"
+                      border="1px solid"
+                      borderColor="whiteAlpha.200"
+                      transition="all 0.2s"
+                      _hover={{
+                        borderColor: "whiteAlpha.400",
+                        transform: "translateY(-2px)",
+                      }}
+                    >
+                      <Flex justify="space-between" align="center">
+                        <Flex align="center" flex={1}>
+                          <Circle
+                            size="10px"
+                            bg={
+                              transaction.type === "INCOME"
+                                ? "green.500"
+                                : "red.500"
+                            }
+                            mr={4}
+                          />
+                          <Box>
+                            <Text
+                              fontWeight="bold"
+                              fontSize={{ base: "sm", md: "md" }}
+                            >
+                              {transaction.description}
+                            </Text>
+                            <Text fontSize="sm" color="gray.400">
+                              {format(new Date(transaction.date), "dd/MM/yyyy")}
+                            </Text>
+                          </Box>
+                        </Flex>
+                        <Flex align="center" gap={4}>
+                          <Box textAlign="right">
+                            <Text
+                              fontWeight="bold"
+                              fontSize={{ base: "md", md: "lg" }}
+                              color={
+                                transaction.type === "INCOME"
+                                  ? "green.500"
+                                  : "red.500"
+                              }
+                            >
+                              ${transaction.amount}
+                            </Text>
+                            <Text fontSize="sm" color="gray.400">
+                              {transaction.type}
+                            </Text>
+                          </Box>
+                          <IconButton
+                            aria-label="Delete transaction"
+                            icon={<DeleteIcon />}
+                            variant="ghost"
+                            colorScheme="red"
+                            size="sm"
+                            onClick={() => {
+                              setDeleteId(transaction.id);
+                              setIsDeleteModalOpen(true);
+                            }}
+                          />
+                        </Flex>
+                      </Flex>
+                    </Box>
+                  ))}
+                </VStack>
+              </Container>
             </DrawerBody>
-            <DrawerFooter>
-              <Button
-                onClick={() => setIsViewAllOpen(false)}
-                colorScheme="blue"
-              >
-                Close
-              </Button>
+            <DrawerFooter borderTopWidth="1px" borderColor="whiteAlpha.200">
+              <Container maxW="container.lg">
+                <Flex justify="flex-end">
+                  <Button
+                    colorScheme="blue"
+                    onClick={() => setIsViewAllOpen(false)}
+                  >
+                    Close
+                  </Button>
+                </Flex>
+              </Container>
             </DrawerFooter>
           </DrawerContent>
         </Drawer>
-        <Modal isOpen={deleteId !== null} onClose={() => setDeleteId(null)}>
+
+        {/* Delete Confirmation Modal */}
+        <Modal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+        >
           <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Delete Transaction</ModalHeader>
-            <ModalCloseButton />
+          <ModalContent bg="gray.800">
+            <ModalHeader color="white">Delete Transaction</ModalHeader>
+            <ModalCloseButton color="white" />
             <ModalBody>
-              <Text>Are you sure you want to delete this transaction?</Text>
+              <Text color="white">
+                Are you sure you want to delete this transaction?
+              </Text>
             </ModalBody>
             <ModalFooter>
-              <Button mr={3} onClick={() => setDeleteId(null)}>
+              <Button
+                variant="ghost"
+                mr={3}
+                onClick={() => setIsDeleteModalOpen(false)}
+              >
                 Cancel
               </Button>
               <Button
