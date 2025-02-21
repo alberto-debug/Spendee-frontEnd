@@ -187,7 +187,7 @@ const DashboardPage = () => {
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [fetchTransactions]);
 
   return (
     <Box>
