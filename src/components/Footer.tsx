@@ -35,10 +35,26 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: FaTwitter, label: "Twitter", href: "#" },
-    { icon: FaGithub, label: "GitHub", href: "#" },
-    { icon: FaLinkedin, label: "LinkedIn", href: "#" },
-    { icon: FaInstagram, label: "Instagram", href: "#" },
+    {
+      icon: FaTwitter,
+      label: "Twitter",
+      href: "https://github.com/alberto-debug",
+    },
+    {
+      icon: FaGithub,
+      label: "GitHub",
+      href: "https://github.com/alberto-debug",
+    },
+    {
+      icon: FaLinkedin,
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/in/alberto-juniorr/",
+    },
+    {
+      icon: FaInstagram,
+      label: "Instagram",
+      href: "https://www.linkedin.com/in/alberto-juniorr/",
+    },
   ];
 
   return (

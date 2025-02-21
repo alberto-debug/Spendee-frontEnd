@@ -55,8 +55,8 @@ const Navbar = () => {
             _hover={{ textDecoration: "none" }}
           >
             <Button
-              bg="white"
-              color="black"
+              bg="black"
+              color="white"
               borderRadius="full"
               _hover={{ bg: "none", border: "2px solid white", color: "white" }}
               fontSize={{ base: "sm", md: "md" }}
@@ -125,9 +125,11 @@ const Navbar = () => {
               _hover={{ textDecoration: "none" }}
             >
               <Button
-                color="white"
+                variant="outline"
+                border="2px solid white"
                 borderRadius="full"
-                _hover={{ bg: "blue", border: "2px solid white" }}
+                color="white"
+                _hover={{ bg: "white", color: "black" }}
                 width="100%"
               >
                 Register

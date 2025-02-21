@@ -34,7 +34,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
       <HStack spacing={4}>
         <IconButton
           as="a"
-          href="https://www.linkedin.com/in/your-profile"
+          href="https://www.linkedin.com/in/alberto-juniorr/"
           target="_blank"
           icon={<FaLinkedin />}
           color="#0A66C2"
