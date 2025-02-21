@@ -252,32 +252,34 @@ const DashboardPage = () => {
         >
           <Flex justifyContent="space-around" mb={4}>
             <Button
-              bg="#1a1a1d"
+              bg="black"
+              border="1px solid #1a1a1d"
               color="white"
-              borderRadius="full"
+              borderRadius="10px"
               _hover={{
                 bg: "#0C0F15",
               }}
               onClick={() => setIsIncomeOpen(true)}
               leftIcon={<Icon as={FaDownload} color="green.500" />} // Using custom icon with color
               size="lg"
-              height="60px"
-              width="160px"
+              height="90px"
+              width="130px"
             >
               Income
             </Button>
             <Button
-              bg="#1a1a1d"
+              bg="black"
+              border="1px solid #1a1a1d"
               color="white"
-              borderRadius="full"
+              borderRadius="10px"
               _hover={{
                 bg: "#0C0F15",
               }}
               onClick={() => setIsExpenseOpen(true)}
               leftIcon={<Icon as={FaUpload} color="red.500" />} // Using custom icon with color
               size="lg"
-              height="60px"
-              width="160px"
+              height="90px"
+              width="130px"
             >
               Outcome
             </Button>
