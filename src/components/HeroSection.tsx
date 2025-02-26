@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useState } from "react";
 import {
@@ -26,7 +24,7 @@ interface HeroSectionProps {
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({ balance }) => {
-  const [showBalance, setShowBalance] = useState(true);
+  const [showBalance, setShowBalance] = useState(false); // Inicializa como false para censurar o balance por padrão
 
   return (
     <Box
@@ -179,6 +177,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ balance }) => {
                     fontWeight="bold"
                     fontFamily="monospace"
                     lineHeight="1"
+                    style={{
+                      filter: showBalance ? "none" : "blur(2px)",
+                    }}
                   >
                     {showBalance ? `$${balance.toFixed(2)}` : "••••••"}
                   </Text>
@@ -207,7 +208,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({ balance }) => {
               />
 
               {/* Holographic Effect */}
-
               <Box
                 position="absolute"
                 top={0}
@@ -215,9 +215,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ balance }) => {
                 bottom={0}
                 left={0}
                 borderRadius="2xl"
-                background="linear-gradient(125deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.1) 70%)"
+                background="linear-gradient(125deg, rgba(255,255,255,0.1) 5%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.1) 50%)"
                 backgroundSize="250% 100%"
-                animation="shine 7s infinite linear"
+                animation="shine 9s infinite linear"
                 boxShadow="0 4px 20px rgba(255, 255, 255, 0.2)"
                 sx={{
                   "@keyframes shine": {
