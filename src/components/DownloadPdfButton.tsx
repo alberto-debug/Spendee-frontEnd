@@ -106,7 +106,7 @@ const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({
       width={{ base: "100px", md: "115px", lg: "130px" }}
       fontSize={{ base: "12px", md: "14px", lg: "16px" }}
     >
-      Download PDF
+      Download
     </Button>
   );
 };
