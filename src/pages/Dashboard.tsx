@@ -36,6 +36,7 @@ import axios from "axios";
 import { format, parse } from "date-fns";
 import { motion } from "framer-motion";
 import Navbar from "../components/navbar2";
+import DownloadPdfButton from "../components/DownloadPdfButton";
 import Footer from "../components/Footer";
 import HeroSection from "../components/HeroSection"; // Import the HeroSection component
 import { DeleteIcon } from "@chakra-ui/icons";
@@ -242,45 +243,63 @@ const DashboardPage = () => {
           shadow="xl"
           p={6}
         >
-          <Flex justifyContent="space-around" mb={4}>
+          <Flex
+            justifyContent="space-between"
+            alignItems="center"
+            mb={6}
+            mx="auto"
+            maxW={{ base: "100%", md: "90%" }}
+            px={{ base: 4, md: 6 }}
+            gap={4}
+            flexWrap="wrap" // Allow buttons to wrap on smaller screens
+          >
             <Button
               bg="black"
               border="1px solid #1a1a1d"
               color="white"
               borderRadius="10px"
-              _hover={{
-                bg: "#0C0F15",
-              }}
-              _active={{
-                bg: "#1a1a1d",
-              }}
+              _hover={{ bg: "#0C0F15" }}
+              _active={{ bg: "#1a1a1d" }}
               onClick={() => setIsIncomeOpen(true)}
-              leftIcon={<Icon as={FaDownload} color="green.500" />}
+              leftIcon={
+                <Icon
+                  as={FaDownload}
+                  color="green.500"
+                  boxSize={{ base: "16px", md: "20px", lg: "24px" }}
+                />
+              }
               size="lg"
-              height="90px"
-              width="130px"
+              height={{ base: "60px", md: "75px", lg: "90px" }}
+              width={{ base: "100px", md: "115px", lg: "130px" }}
+              fontSize={{ base: "12px", md: "14px", lg: "16px" }}
             >
               Income
             </Button>
+
             <Button
               bg="black"
               border="1px solid #1a1a1d"
               color="white"
               borderRadius="10px"
-              _hover={{
-                bg: "#0C0F15",
-              }}
-              _active={{
-                bg: "#1a1a1d",
-              }}
+              _hover={{ bg: "#0C0F15" }}
+              _active={{ bg: "#1a1a1d" }}
               onClick={() => setIsExpenseOpen(true)}
-              leftIcon={<Icon as={FaUpload} color="red.500" />}
+              leftIcon={
+                <Icon
+                  as={FaUpload}
+                  color="red.500"
+                  boxSize={{ base: "16px", md: "20px", lg: "24px" }}
+                />
+              }
               size="lg"
-              height="90px"
-              width="130px"
+              height={{ base: "60px", md: "75px", lg: "90px" }}
+              width={{ base: "100px", md: "115px", lg: "130px" }}
+              fontSize={{ base: "12px", md: "14px", lg: "16px" }}
             >
               Outcome
             </Button>
+
+            <DownloadPdfButton transactions={transactions} balance={balance} />
           </Flex>
 
           {/* Add Income Drawer */}

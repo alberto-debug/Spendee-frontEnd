@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 import { useState } from "react";
 import {
@@ -11,8 +13,10 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
-import { FaEye, FaEyeSlash, FaWifi } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaWifi, FaDownload } from "react-icons/fa";
 import { RiVisaLine } from "react-icons/ri";
+
+import DownloadPdfButton from "./DownloadPdfButton";
 
 const MotionBox = motion(Box);
 const MotionFlex = motion(Flex);
@@ -201,8 +205,32 @@ const HeroSection: React.FC<HeroSectionProps> = ({ balance }) => {
                 bg="linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%)"
                 pointerEvents="none"
               />
+
+              {/* Holographic Effect */}
+
+              <Box
+                position="absolute"
+                top={0}
+                right={0}
+                bottom={0}
+                left={0}
+                borderRadius="2xl"
+                background="linear-gradient(125deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.1) 70%)"
+                backgroundSize="250% 100%"
+                animation="shine 7s infinite linear"
+                boxShadow="0 4px 20px rgba(255, 255, 255, 0.2)"
+                sx={{
+                  "@keyframes shine": {
+                    "0%": { backgroundPosition: "250% 0" },
+                    "100%": { backgroundPosition: "-250% 0" },
+                  },
+                }}
+                pointerEvents="none"
+              />
             </MotionBox>
           </MotionBox>
+
+          {/* Download History Button */}
         </MotionFlex>
       </Container>
 
