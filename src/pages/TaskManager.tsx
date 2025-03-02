@@ -72,7 +72,7 @@ const TaskManager: React.FC = () => {
     try {
       const token = sessionStorage.getItem("auth-token");
       const response = await axios.get<Task[]>(
-        "http://localhost:8080/tasks/user",
+        "https://spendee-track-spending-easily.onrender.com/tasks/user",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -108,7 +108,7 @@ const TaskManager: React.FC = () => {
     try {
       const token = sessionStorage.getItem("auth-token");
       const response = await axios.post(
-        "http://localhost:8080/tasks/add",
+        "https://spendee-track-spending-easily.onrender.com/tasks/add",
         newTask,
         {
           headers: {
@@ -149,7 +149,7 @@ const TaskManager: React.FC = () => {
       }
 
       const response = await axios.patch(
-        `http://localhost:8080/tasks/${taskId}/status?newStatus=${newStatus}`,
+        `https://spendee-track-spending-easily.onrender.com/tasks/${taskId}/status?newStatus=${newStatus}`,
         null, // No body needed
         {
           headers: {
@@ -206,11 +206,14 @@ const TaskManager: React.FC = () => {
 
     try {
       const token = sessionStorage.getItem("auth-token");
-      await axios.delete(`http://localhost:8080/tasks/task/${deleteId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await axios.delete(
+        `https://spendee-track-spending-easily.onrender.com/tasks/task/${deleteId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       const updatedTasks = tasks.filter((task) => task.id !== deleteId);
       setTasks(updatedTasks);
       toast({
