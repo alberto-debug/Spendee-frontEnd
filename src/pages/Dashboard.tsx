@@ -251,7 +251,7 @@ const DashboardPage = () => {
             mx="auto"
             maxW={{ base: "100%", md: "90%" }}
             px={{ base: 4, md: 6 }}
-            gap={4}
+            gap={1}
             flexWrap="wrap" // Allow buttons to wrap on smaller screens
           >
             <Button
@@ -300,7 +300,20 @@ const DashboardPage = () => {
               Outcome
             </Button>
 
-            <DownloadPdfButton transactions={transactions} balance={balance} />
+            {/* Bottom row of buttons */}
+            <Flex
+              justifyContent="space-between"
+              width="100%"
+              gap={1}
+              flexWrap="wrap"
+            >
+              <DownloadPdfButton
+                transactions={transactions}
+                balance={balance}
+              />
+
+              <TaskManagerWithButton />
+            </Flex>
           </Flex>
 
           {/* Add Income Drawer */}
