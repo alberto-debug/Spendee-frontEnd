@@ -40,6 +40,7 @@ import DownloadPdfButton from "../components/DownloadPdfButton";
 import Footer from "../components/Footer";
 import HeroSection from "../components/HeroSection"; // Import the HeroSection component
 import { DeleteIcon } from "@chakra-ui/icons";
+import TaskManagerWithButton from "../pages/TaskManager";
 
 interface Transaction {
   id: number;
