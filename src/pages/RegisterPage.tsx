@@ -82,7 +82,7 @@ const RegisterPage = () => {
 
     try {
       await axios.post(
-        "https://spendee-track-spending-easily.onrender.com/auth/register",
+        "https://spendee-track-spending-easily.onrender.com/auth/register ",
         {
           name,
           email,
@@ -100,20 +100,41 @@ const RegisterPage = () => {
 
       navigate("/login");
     } catch (error: any) {
-      toast({
-        title: "Registration Error",
-        description: error.response?.data || "Unknown error.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      if (
+        error.response?.status === 400 &&
+        error.response?.data === "Email already exists"
+      ) {
+        setEmailError(true);
+        toast({
+          title: "Email Already Exists",
+          description:
+            "This email is already registered. Please use a different email or log in.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: "Registration Error",
+          description: error.response?.data || "Unknown error.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box display="flex" flexDirection="column" minH="100vh">
+    <Box
+      display="flex"
+      flexDirection="column"
+      minH="100vh"
+      bg="#1a202c"
+      color="white"
+    >
       <Navbar />
 
       <Flex
@@ -121,111 +142,136 @@ const RegisterPage = () => {
         direction="column"
         align="center"
         justify="center"
-        px={4}
-        py={8}
+        px={{ base: 4, md: 8 }}
+        py={{ base: 6, md: 12 }}
       >
         <Box
           maxW="md"
           w="100%"
-          p={8}
-          bg="white"
-          boxShadow="lg"
-          borderRadius="20px"
+          p={{ base: 6, md: 8 }}
+          bg="gray.800"
+          boxShadow="0 4px 15px rgba(0, 0, 0, 0.2)"
+          borderRadius="16px"
           border="1px solid"
-          borderColor="gray.200"
+          borderColor="gray.700"
         >
-          <Heading mb={6} textAlign="center" fontSize="2xl" color="black">
+          <Heading
+            mb={6}
+            textAlign="center"
+            fontSize={{ base: "2xl", md: "3xl" }}
+            fontWeight="extrabold"
+            color="white"
+            letterSpacing="tight"
+          >
             Register
           </Heading>
 
           <InputGroup mb={4}>
             <InputLeftElement pointerEvents="none">
-              <Icon as={FaUser} color="gray.500" />
+              <Icon as={FaUser} color="gray.400" />
             </InputLeftElement>
             <Input
               placeholder="Name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              bg="gray.900"
               border="1px solid"
-              borderColor="gray.300"
-              borderRadius="15px"
-              _focus={{ borderColor: "blue.500" }}
+              borderColor="gray.600"
+              borderRadius="12px"
+              _focus={{ borderColor: "#667eea", bg: "gray.800" }}
               _hover={{ borderColor: "gray.500" }}
-              fontSize={["sm", "md"]}
+              color="white"
+              fontSize={{ base: "sm", md: "md" }}
+              py={{ base: 5, md: 6 }}
             />
           </InputGroup>
 
-          <InputGroup mb={4}>
+          <InputGroup mb={emailError ? 2 : 4}>
             <InputLeftElement pointerEvents="none">
-              <Icon as={EmailIcon} color="gray.500" />
+              <Icon as={EmailIcon} color="gray.400" />
             </InputLeftElement>
             <Input
               placeholder="Email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              bg="gray.900"
               border="1px solid"
-              borderColor={emailError ? "red.500" : "gray.300"}
-              borderRadius="15px"
-              _focus={{ borderColor: "blue.500" }}
+              borderColor={emailError ? "red.500" : "gray.600"}
+              borderRadius="12px"
+              _focus={{ borderColor: "#667eea", bg: "gray.800" }}
               _hover={{ borderColor: emailError ? "red.500" : "gray.500" }}
-              fontSize={["sm", "md"]}
+              color="white"
+              fontSize={{ base: "sm", md: "md" }}
+              py={{ base: 5, md: 6 }}
             />
           </InputGroup>
           {emailError && (
-            <Text color="red.500" fontSize="sm">
-              Invalid email format.
+            <Text color="red.400" fontSize="sm" mb={4}>
+              {validateEmail(email)
+                ? "Email already exists."
+                : "Invalid email format."}
             </Text>
           )}
 
-          <InputGroup mb={6}>
+          <InputGroup mb={passwordError ? 2 : 6}>
             <InputLeftElement pointerEvents="none">
-              <Icon as={LockIcon} color="gray.500" />
+              <Icon as={LockIcon} color="gray.400" />
             </InputLeftElement>
             <Input
               placeholder="Password"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              bg="gray.900"
               border="1px solid"
-              borderColor={passwordError ? "red.500" : "gray.300"}
-              borderRadius="15px"
-              _focus={{ borderColor: "blue.500" }}
+              borderColor={passwordError ? "red.500" : "gray.600"}
+              borderRadius="12px"
+              _focus={{ borderColor: "#667eea", bg: "gray.800" }}
               _hover={{ borderColor: passwordError ? "red.500" : "gray.500" }}
-              fontSize={["sm", "md"]}
+              color="white"
+              fontSize={{ base: "sm", md: "md" }}
+              py={{ base: 5, md: 6 }}
             />
             <InputRightElement>
               <IconButton
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                onClick={toggleShowPassword}
                 variant="ghost"
-                color="gray.500"
-                _hover={{ bg: "transparent" }}
-                fontSize={["sm", "md"]}
+                color="gray.400"
+                _hover={{ color: "gray.300", bg: "transparent" }}
+                _active={{ color: "gray.500" }}
+                fontSize={{ base: "md", md: "lg" }}
+                onClick={toggleShowPassword}
               />
             </InputRightElement>
           </InputGroup>
           {passwordError && (
-            <Text color="red.500" fontSize="sm">
-              Password must be at least 8 characters long and include at least
-              one uppercase letter, one lowercase letter, one number, and one
-              special character.
+            <Text color="red.400" fontSize="sm" mb={6}>
+              Password must be at least 8 characters with 1 uppercase, 1
+              lowercase, 1 number, and 1 special character.
             </Text>
           )}
 
           <Button
-            bg="black"
+            bg="linear-gradient(135deg, #34d399 0%, #059669 100%)"
             color="white"
-            width={["50%", "50%"]}
+            width="100%"
             size="md"
             borderRadius="full"
+            boxShadow="0 2px 8px rgba(52, 211, 153, 0.3)"
+            _hover={{
+              bg: "linear-gradient(135deg, #2cc084 0%, #048554 100%)",
+              transform: "translateY(-1px)",
+            }}
+            _active={{
+              bg: "linear-gradient(135deg, #25a971 0%, #037a47 100%)",
+            }}
+            transition="all 0.2s ease"
             onClick={handleRegister}
             isLoading={loading}
-            _hover={{ bg: "gray.800", borderColor: "gray.600" }}
-            _active={{ bg: "gray.900" }}
-            fontSize={["sm", "md"]}
+            fontSize={{ base: "sm", md: "md" }}
           >
             {loading ? <Spinner size="sm" /> : "Register"}
           </Button>
@@ -233,18 +279,18 @@ const RegisterPage = () => {
           <Text
             mt={4}
             textAlign="center"
-            color="gray.600"
-            fontSize={["sm", "md"]}
+            color="gray.400"
+            fontSize={{ base: "sm", md: "md" }}
           >
             Already have an account?{" "}
             <Link
               as={RouterLink}
               to="/login"
-              color="blue.500"
+              color="#667eea"
               fontWeight="bold"
-              fontSize={["sm", "md"]}
+              _hover={{ color: "#5a6cd8", textDecoration: "underline" }}
             >
-              Click here to log in
+              Log In
             </Link>
           </Text>
         </Box>
