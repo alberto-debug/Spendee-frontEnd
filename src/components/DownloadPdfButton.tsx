@@ -1,10 +1,9 @@
-
 import React from "react";
 import { Button, Icon, useMediaQuery } from "@chakra-ui/react";
 import { FaDownload } from "react-icons/fa";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import logo from "../images/logo.jpg"; // Ensure this path is correct
+import logo from "../images/fpdf.png"; // Ensure this path is correct
 
 interface DownloadPdfButtonProps {
   transactions: any[];
@@ -20,8 +19,8 @@ const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({
     const pageWidth = doc.internal.pageSize.getWidth();
 
     // Logo - Left Side
-    const logoWidth = 40;
-    const logoHeight = 20;
+    const logoWidth = 37;
+    const logoHeight = 27;
     doc.addImage(logo, "JPG", 10, 10, logoWidth, logoHeight); // Left-aligned at x=10
 
     // Header Section
@@ -139,12 +138,12 @@ const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({
     doc.setFontSize(8); // Smaller font to fit
     doc.setTextColor(255, 255, 255); // White
     doc.text(
-      "© 2025 xAI Financial Services | All Rights Reserved",
+      "© 2025 Spendee Financial Services | All Rights Reserved",
       10,
       pageHeight - 13,
     );
     doc.text(
-      "Contact Us: support@xai-finance.com | Phone: (123) 456-7890",
+      "Contact Us: spendee@gmail.com | Phone: (+258) 844214237",
       10,
       pageHeight - 6,
     );
