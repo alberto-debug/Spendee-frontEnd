@@ -527,14 +527,29 @@ const DashboardPage = () => {
           <VStack spacing={8}>
             {/* Transactions List */}
             <Box w="100%">
-              <Flex justify="space-between" align="center" mb={4}>
+
+              <Flex justify="space-between" mt={5} align="center" mb={5}>
                 <Heading size="lg" color="white">
                   Transactions
                 </Heading>
                 <Button
-                  colorScheme="blue"
-                  size="sm"
+                  bg="linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)"
+                  color="white"
+                  borderRadius="12px"
+                  boxShadow="0 4px 15px rgba(0, 198, 255, 0.3)"
+                  _hover={{
+                    bg: "linear-gradient(135deg, #00b4e6 0%, #0066e6 100%)",
+                    transform: "translateY(-2px)",
+                  }}
+                  _active={{
+                    bg: "linear-gradient(135deg, #00a3cc 0%, #0059cc 100%)",
+                  }}
                   onClick={() => setIsViewAllOpen(true)}
+                  size="xs"
+                  height="30px"
+                  fontSize="xs"
+                  px={2}
+                  transition="all 0.3s ease"
                 >
                   View All
                 </Button>
