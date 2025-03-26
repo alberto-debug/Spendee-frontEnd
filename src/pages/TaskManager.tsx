@@ -57,6 +57,8 @@ const TaskManager: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [isAddingTask, setIsAddingTask] = useState(false);
+  const [isDeletingTask, setIsDeletingTask] = useState(false);
 
   const fetchTasks = useCallback(async () => {
     setIsFetching(true);
@@ -66,7 +68,7 @@ const TaskManager: React.FC = () => {
         "https://spendee-track-spending-easily.onrender.com/tasks/user",
         {
           headers: { Authorization: `Bearer ${token}` },
-        },
+        }
       );
       setTasks(response.data);
     } catch (error) {
@@ -93,6 +95,7 @@ const TaskManager: React.FC = () => {
       });
       return;
     }
+    setIsAddingTask(true);
     try {
       const token = sessionStorage.getItem("auth-token");
       const response = await axios.post(
@@ -100,7 +103,7 @@ const TaskManager: React.FC = () => {
         newTask,
         {
           headers: { Authorization: `Bearer ${token}` },
-        },
+        }
       );
       setTasks([response.data, ...tasks]);
       setNewTask({
@@ -124,6 +127,8 @@ const TaskManager: React.FC = () => {
         isClosable: true,
       });
       console.error(error);
+    } finally {
+      setIsAddingTask(false);
     }
   };
 
@@ -138,12 +143,12 @@ const TaskManager: React.FC = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        },
+        }
       );
       setTasks(
         tasks.map((task) =>
-          task.id === taskId ? { ...task, status: newStatus } : task,
-        ),
+          task.id === taskId ? { ...task, status: newStatus } : task
+        )
       );
       toast({
         title: "Task updated!",
@@ -164,13 +169,14 @@ const TaskManager: React.FC = () => {
 
   const handleDeleteTask = async () => {
     if (deleteId === null) return;
+    setIsDeletingTask(true);
     try {
       const token = sessionStorage.getItem("auth-token");
       await axios.delete(
         `https://spendee-track-spending-easily.onrender.com/tasks/task/${deleteId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        },
+        }
       );
       setTasks(tasks.filter((task) => task.id !== deleteId));
       toast({
@@ -189,6 +195,8 @@ const TaskManager: React.FC = () => {
         isClosable: true,
       });
       console.error(error);
+    } finally {
+      setIsDeletingTask(false);
     }
   };
 
@@ -201,7 +209,7 @@ const TaskManager: React.FC = () => {
 
   const drawerPlacement = useBreakpointValue<"bottom" | "right">(
     { base: "bottom", md: "right" },
-    { fallback: "right" },
+    { fallback: "right" }
   );
   const drawerWidth = useBreakpointValue({
     base: "100%",
@@ -376,58 +384,29 @@ const TaskManager: React.FC = () => {
                           fontWeight="semibold"
                           color="gray.300"
                           mb={1}
+                          display="flex"
+                          alignItems="center"
                         >
                           Due Date
+                          <Icon as={FaCalendar} ml={2} color="gray.500" />
                         </FormLabel>
-                        <HStack>
-                          <Input
-                            type="date"
-                            value={newTask.dueDate}
-                            onChange={(e) =>
-                              setNewTask({
-                                ...newTask,
-                                dueDate: e.target.value,
-                              })
-                            }
-                            bg="gray.800"
-                            border="1px solid"
-                            borderColor="gray.600"
-                            borderRadius="8px"
-                            _hover={{ borderColor: "gray.500" }}
-                            _focus={{ bg: "gray.700", borderColor: "#667eea" }}
-                            color="white"
-                            fontSize="md"
-                            py={5}
-                            sx={{
-                              "::-webkit-calendar-picker-indicator": {
-                                filter: "invert(1)",
-                                cursor: "pointer",
-                                padding: "8px",
-                              },
-                              "::-webkit-datetime-edit": {
-                                color: "white",
-                              },
-                            }}
-                          />
-                          <IconButton
-                            aria-label="Calendar"
-                            icon={<Icon as={FaCalendar} />}
-                            size="sm"
-                            bg="gray.800"
-                            color="white"
-                            borderRadius="8px"
-                            _hover={{ bg: "gray.700" }}
-                            onClick={() => {
-                              // Trigger date picker on mobile
-                              const input = document.querySelector(
-                                "input[type='date']",
-                              ) as HTMLInputElement;
-                              if (input) {
-                                input.click();
-                              }
-                            }}
-                          />
-                        </HStack>
+                        <Input
+                          type="date"
+                          value={newTask.dueDate}
+                          onChange={(e) =>
+                            setNewTask({ ...newTask, dueDate: e.target.value })
+                          }
+                          bg="gray.800"
+                          border="1px solid"
+                          borderColor="gray.600"
+                          borderRadius="8px"
+                          _hover={{ borderColor: "gray.500" }}
+                          _focus={{ bg: "gray.700", borderColor: "#667eea" }}
+                          color="white"
+                          fontSize="md"
+                          py={5}
+                          placeholder="dd/mm/yyyy"
+                        />
                       </FormControl>
                       <FormControl>
                         <FormLabel
@@ -484,6 +463,8 @@ const TaskManager: React.FC = () => {
                       }}
                       onClick={handleAddTask}
                       borderRadius="8px"
+                      isLoading={isAddingTask}
+                      isDisabled={isAddingTask}
                     >
                       Add Task
                     </Button>
@@ -625,6 +606,8 @@ const TaskManager: React.FC = () => {
               _hover={{ bg: "red.700" }}
               onClick={handleDeleteTask}
               borderRadius="8px"
+              isLoading={isDeletingTask}
+              isDisabled={isDeletingTask}
             >
               Delete
             </Button>
