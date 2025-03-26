@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Heading,
@@ -18,7 +18,6 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
-  Container,
   Select,
   Modal,
   ModalOverlay,
@@ -30,6 +29,7 @@ import {
   FormLabel,
   FormControl,
   useBreakpointValue,
+  HStack,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { FaTrash, FaClock, FaBook, FaPlus } from "react-icons/fa";
@@ -58,7 +58,7 @@ const TaskManager: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     setIsFetching(true);
     try {
       const token = sessionStorage.getItem("auth-token");
@@ -80,7 +80,7 @@ const TaskManager: React.FC = () => {
     } finally {
       setIsFetching(false);
     }
-  };
+  }, [toast]);
 
   const handleAddTask = async () => {
     if (!newTask.title || !newTask.description || !newTask.dueDate) {
@@ -93,7 +93,6 @@ const TaskManager: React.FC = () => {
       });
       return;
     }
-
     try {
       const token = sessionStorage.getItem("auth-token");
       const response = await axios.post(
@@ -131,10 +130,6 @@ const TaskManager: React.FC = () => {
   const handleStatusChange = async (taskId: number, newStatus: string) => {
     try {
       const token = sessionStorage.getItem("auth-token");
-      if (!token) {
-        throw new Error("Authentication token not found.");
-      }
-
       await axios.patch(
         `https://spendee-track-spending-easily.onrender.com/tasks/${taskId}/status?newStatus=${newStatus}`,
         null,
@@ -145,11 +140,11 @@ const TaskManager: React.FC = () => {
           },
         },
       );
-
-      const updatedTasks = tasks.map((task) =>
-        task.id === taskId ? { ...task, status: newStatus } : task,
+      setTasks(
+        tasks.map((task) =>
+          task.id === taskId ? { ...task, status: newStatus } : task,
+        ),
       );
-      setTasks(updatedTasks);
       toast({
         title: "Task updated!",
         status: "success",
@@ -157,40 +152,18 @@ const TaskManager: React.FC = () => {
         isClosable: true,
       });
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Axios error:", error.response?.data);
-        toast({
-          title: "Error updating task",
-          description: error.response?.data?.message || "An error occurred",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      } else if (error instanceof Error) {
-        console.error("Error updating task:", error.message);
-        toast({
-          title: "Error updating task",
-          description: error.message,
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      } else {
-        console.error("Unknown error updating task:", error);
-        toast({
-          title: "Error updating task",
-          description: "An unknown error occurred",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
+      toast({
+        title: "Error updating task",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      console.error(error);
     }
   };
 
   const handleDeleteTask = async () => {
     if (deleteId === null) return;
-
     try {
       const token = sessionStorage.getItem("auth-token");
       await axios.delete(
@@ -199,8 +172,7 @@ const TaskManager: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      const updatedTasks = tasks.filter((task) => task.id !== deleteId);
-      setTasks(updatedTasks);
+      setTasks(tasks.filter((task) => task.id !== deleteId));
       toast({
         title: "Task deleted!",
         status: "success",
@@ -222,412 +194,414 @@ const TaskManager: React.FC = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [fetchTasks]);
 
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
 
-  const drawerWidth = useBreakpointValue({ base: "100%", md: "60%" });
+  const drawerPlacement = useBreakpointValue<"bottom" | "right">(
+    { base: "bottom", md: "right" },
+    { fallback: "right" },
+  );
+  const drawerWidth = useBreakpointValue({
+    base: "100%",
+    md: "70%",
+    lg: "50%",
+  });
+  const drawerMaxHeight = useBreakpointValue({ base: "80vh", md: "100vh" });
 
   return (
     <>
-      {/* Main Button to open TaskManager */}
       <Button
-        bg="linear-gradient(135deg, #6B7280, #374151)"
+        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
         color="white"
-        borderRadius="lg"
-        boxShadow="md"
+        borderRadius="12px"
+        boxShadow="0 4px 15px rgba(102, 126, 234, 0.4)"
         _hover={{
-          bg: "linear-gradient(135deg, #4B5563, #1F2937)",
-          boxShadow: "lg",
+          bg: "linear-gradient(135deg, #5a6cd8 0%, #6a3e92 100%)",
+          transform: "translateY(-2px)",
         }}
-        _active={{ bg: "gray.700" }}
+        _active={{
+          bg: "linear-gradient(135deg, #4e5ec6 0%, #5e3482 100%)",
+          transform: "translateY(0)",
+        }}
         onClick={handleOpen}
-        leftIcon={<Icon as={FaBook} color="teal.300" boxSize={5} />}
+        leftIcon={<Icon as={FaBook} boxSize={5} />}
         size="lg"
         px={6}
-        py={6}
+        py={7}
         fontSize={{ base: "md", md: "lg" }}
-        fontWeight="semibold"
+        transition="all 0.3s ease"
       >
         Tasks
       </Button>
 
-      {/* TaskManager Drawer */}
-      <Drawer
-        isOpen={isOpen}
-        placement="bottom"
-        onClose={handleClose}
-        size="md"
-      >
-        <DrawerOverlay bg="rgba(0, 0, 0, 0.5)" />
+      <Drawer isOpen={isOpen} placement={drawerPlacement} onClose={handleClose}>
+        <DrawerOverlay bg="rgba(0, 0, 0, 0.4)" />
         <DrawerContent
-          bg="gray.800"
+          bg="#1a202c"
           color="white"
-          borderRadius="xl"
-          boxShadow="2xl"
-          maxH="60vh"
-          mx="auto"
+          borderRadius={
+            drawerPlacement === "bottom" ? "16px 16px 0 0" : "16px 0 0 16px"
+          }
           w={drawerWidth}
+          maxW={drawerPlacement === "right" ? "600px" : "100%"}
+          maxH={drawerMaxHeight}
+          zIndex={1200}
         >
-          <DrawerCloseButton color="gray.300" size="lg" mt={2} />
-          <DrawerHeader borderBottomWidth="1px" borderColor="gray.700" py={4}>
-            <Heading size="lg" color="teal.300" fontWeight="bold">
+          <DrawerCloseButton color="white" size="lg" mt={2} />
+          <DrawerHeader
+            py={6}
+            px={8}
+            borderBottom="1px solid"
+            borderColor="gray.700"
+          >
+            <Heading size="lg" fontWeight="extrabold" letterSpacing="tight">
               Task Manager
             </Heading>
           </DrawerHeader>
-          <DrawerBody py={6}>
-            <Container maxW="container.md">
-              <VStack spacing={6} align="stretch">
-                <Button
-                  bg="teal.500"
+          <DrawerBody px={8} py={6} overflowY="auto">
+            <VStack spacing={6} align="stretch">
+              <Button
+                bg="linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)"
+                color="white"
+                borderRadius="12px"
+                boxShadow="0 4px 15px rgba(0, 198, 255, 0.3)"
+                _hover={{
+                  bg: "linear-gradient(135deg, #00b4e6 0%, #0066e6 100%)",
+                  transform: "translateY(-2px)",
+                }}
+                _active={{
+                  bg: "linear-gradient(135deg, #00a3cc 0%, #0059cc 100%)",
+                }}
+                onClick={() => setIsAddTaskOpen(true)}
+                leftIcon={<Icon as={FaPlus} />}
+                size="lg"
+                fontSize="md"
+                py={6}
+                transition="all 0.3s ease"
+              >
+                Add New Task
+              </Button>
+
+              <Drawer
+                isOpen={isAddTaskOpen}
+                placement={drawerPlacement}
+                onClose={() => setIsAddTaskOpen(false)}
+              >
+                <DrawerOverlay bg="rgba(0, 0, 0, 0.4)" />
+                <DrawerContent
+                  bg="#1a202c"
                   color="white"
-                  onClick={() => setIsAddTaskOpen(true)}
-                  leftIcon={<Icon as={FaPlus} />}
-                  size="lg"
-                  borderRadius="md"
-                  _hover={{ bg: "teal.600", transform: "translateY(-2px)" }}
-                  _active={{ bg: "teal.700" }}
-                  boxShadow="md"
-                  fontWeight="medium"
+                  borderRadius={
+                    drawerPlacement === "bottom"
+                      ? "16px 16px 0 0"
+                      : "16px 0 0 16px"
+                  }
+                  maxW={drawerPlacement === "right" ? "450px" : "100%"}
+                  maxH={drawerMaxHeight}
+                  zIndex={1300}
                 >
-                  Add New Task
-                </Button>
-                {isAddTaskOpen && (
-                  <Drawer
-                    isOpen={isAddTaskOpen}
-                    placement="bottom"
-                    onClose={() => setIsAddTaskOpen(false)}
-                    size="md"
+                  <DrawerCloseButton color="white" size="lg" mt={2} />
+                  <DrawerHeader
+                    py={6}
+                    px={6}
+                    borderBottom="1px solid"
+                    borderColor="gray.700"
                   >
-                    <DrawerOverlay bg="rgba(0, 0, 0, 0.5)" />
-                    <DrawerContent
-                      bg="gray.800"
-                      color="white"
-                      borderRadius="xl"
-                      boxShadow="2xl"
-                      maxH="60vh"
-                      mx="auto"
-                      w={drawerWidth}
-                    >
-                      <DrawerCloseButton color="gray.300" size="lg" mt={2} />
-                      <DrawerHeader
-                        borderBottomWidth="1px"
-                        borderColor="gray.700"
-                        py={4}
-                      >
-                        <Heading size="md" color="teal.300" fontWeight="bold">
-                          Create Task
-                        </Heading>
-                      </DrawerHeader>
-                      <DrawerBody py={6}>
-                        <VStack spacing={5} align="stretch">
-                          <FormControl>
-                            <FormLabel
-                              color="gray.300"
-                              fontSize="sm"
-                              fontWeight="medium"
-                            >
-                              Title
-                            </FormLabel>
-                            <Input
-                              placeholder="Enter task title"
-                              value={newTask.title}
-                              onChange={(e) =>
-                                setNewTask({
-                                  ...newTask,
-                                  title: e.target.value,
-                                })
-                              }
-                              bg="gray.700"
-                              border="1px solid"
-                              borderColor="gray.600"
-                              borderRadius="md"
-                              _hover={{ borderColor: "gray.500" }}
-                              _focus={{
-                                borderColor: "teal.400",
-                                bg: "gray.600",
-                              }}
-                              color="white"
-                              fontSize="md"
-                              py={5}
-                            />
-                          </FormControl>
-                          <FormControl>
-                            <FormLabel
-                              color="gray.300"
-                              fontSize="sm"
-                              fontWeight="medium"
-                            >
-                              Description
-                            </FormLabel>
-                            <Input
-                              placeholder="Enter description"
-                              value={newTask.description}
-                              onChange={(e) =>
-                                setNewTask({
-                                  ...newTask,
-                                  description: e.target.value,
-                                })
-                              }
-                              bg="gray.700"
-                              border="1px solid"
-                              borderColor="gray.600"
-                              borderRadius="md"
-                              _hover={{ borderColor: "gray.500" }}
-                              _focus={{
-                                borderColor: "teal.400",
-                                bg: "gray.600",
-                              }}
-                              color="white"
-                              fontSize="md"
-                              py={5}
-                            />
-                          </FormControl>
-                          <FormControl>
-                            <FormLabel
-                              color="gray.300"
-                              fontSize="sm"
-                              fontWeight="medium"
-                            >
-                              Due Date
-                            </FormLabel>
-                            <Input
-                              type="date"
-                              value={newTask.dueDate}
-                              onChange={(e) =>
-                                setNewTask({
-                                  ...newTask,
-                                  dueDate: e.target.value,
-                                })
-                              }
-                              bg="gray.700"
-                              border="1px solid"
-                              borderColor="gray.600"
-                              borderRadius="md"
-                              _hover={{ borderColor: "gray.500" }}
-                              _focus={{
-                                borderColor: "teal.400",
-                                bg: "gray.600",
-                              }}
-                              color="white"
-                              fontSize="md"
-                              py={5}
-                              sx={{
-                                "::-webkit-calendar-picker-indicator": {
-                                  filter: "invert(0.8)",
-                                  cursor: "pointer",
-                                  padding: "8px",
-                                },
-                                "::-webkit-datetime-edit": { color: "white" },
-                              }}
-                            />
-                          </FormControl>
-                          <FormControl>
-                            <FormLabel
-                              color="gray.300"
-                              fontSize="sm"
-                              fontWeight="medium"
-                            >
-                              Status
-                            </FormLabel>
-                            <Select
-                              value={newTask.status}
-                              onChange={(e) =>
-                                setNewTask({
-                                  ...newTask,
-                                  status: e.target.value,
-                                })
-                              }
-                              bg="gray.700"
-                              border="1px solid"
-                              borderColor="gray.600"
-                              borderRadius="md"
-                              _hover={{ borderColor: "gray.500" }}
-                              _focus={{
-                                borderColor: "teal.400",
-                                bg: "gray.600",
-                              }}
-                              color="white"
-                              fontSize="md"
-                              py={2}
-                            >
-                              <option value="ONGOING">Ongoing</option>
-                              <option value="DONE">Done</option>
-                              <option value="DELAYED">Delayed</option>
-                            </Select>
-                          </FormControl>
-                        </VStack>
-                      </DrawerBody>
-                      <DrawerFooter
-                        borderTopWidth="1px"
-                        borderColor="gray.700"
-                        py={4}
-                      >
-                        <Button
-                          variant="outline"
-                          color="white"
+                    <Heading size="md" fontWeight="bold">
+                      Create Task
+                    </Heading>
+                  </DrawerHeader>
+                  <DrawerBody px={6} py={6} overflow="visible">
+                    <VStack spacing={5} align="stretch">
+                      <FormControl>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.300"
+                          mb={1}
+                        >
+                          Task Title
+                        </FormLabel>
+                        <Input
+                          placeholder="Enter task title"
+                          value={newTask.title}
+                          onChange={(e) =>
+                            setNewTask({ ...newTask, title: e.target.value })
+                          }
+                          bg="gray.800"
+                          border="1px solid"
                           borderColor="gray.600"
-                          mr={3}
-                          onClick={() => setIsAddTaskOpen(false)}
-                          _hover={{ bg: "gray.700" }}
-                          borderRadius="md"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          bg="teal.500"
+                          borderRadius="8px"
+                          _hover={{ borderColor: "gray.500" }}
+                          _focus={{ bg: "gray.700", borderColor: "#667eea" }}
                           color="white"
-                          onClick={handleAddTask}
-                          _hover={{ bg: "teal.600" }}
-                          borderRadius="md"
+                          fontSize="md"
+                          py={5}
+                        />
+                      </FormControl>
+                      <FormControl>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.300"
+                          mb={1}
                         >
-                          Add Task
-                        </Button>
-                      </DrawerFooter>
-                    </DrawerContent>
-                  </Drawer>
-                )}
+                          Description
+                        </FormLabel>
+                        <Input
+                          placeholder="Enter description"
+                          value={newTask.description}
+                          onChange={(e) =>
+                            setNewTask({
+                              ...newTask,
+                              description: e.target.value,
+                            })
+                          }
+                          bg="gray.800"
+                          border="1px solid"
+                          borderColor="gray.600"
+                          borderRadius="8px"
+                          _hover={{ borderColor: "gray.500" }}
+                          _focus={{ bg: "gray.700", borderColor: "#667eea" }}
+                          color="white"
+                          fontSize="md"
+                          py={5}
+                        />
+                      </FormControl>
+                      <FormControl>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.300"
+                          mb={1}
+                        >
+                          Due Date
+                        </FormLabel>
+                        <Input
+                          type="date"
+                          value={newTask.dueDate}
+                          onChange={(e) =>
+                            setNewTask({ ...newTask, dueDate: e.target.value })
+                          }
+                          bg="gray.800"
+                          border="1px solid"
+                          borderColor="gray.600"
+                          borderRadius="8px"
+                          _hover={{ borderColor: "gray.500" }}
+                          _focus={{ bg: "gray.700", borderColor: "#667eea" }}
+                          color="white"
+                          fontSize="md"
+                          py={5}
+                          sx={{
+                            "::-webkit-calendar-picker-indicator": {
+                              filter: "invert(1)",
+                              cursor: "pointer",
+                              padding: "8px",
+                            },
+                            "::-webkit-datetime-edit": {
+                              color: "white",
+                            },
+                          }}
+                        />
+                      </FormControl>
+                      <FormControl>
+                        <FormLabel
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.300"
+                          mb={1}
+                        >
+                          Status
+                        </FormLabel>
+                        <Select
+                          value={newTask.status}
+                          onChange={(e) =>
+                            setNewTask({ ...newTask, status: e.target.value })
+                          }
+                          bg="gray.800"
+                          border="1px solid"
+                          borderColor="gray.600"
+                          borderRadius="8px"
+                          _hover={{ borderColor: "gray.500" }}
+                          _focus={{ bg: "gray.700", borderColor: "#667eea" }}
+                          color="white"
+                          fontSize="md"
+                          py={2}
+                        >
+                          <option value="ONGOING">Ongoing</option>
+                          <option value="DONE">Done</option>
+                          <option value="DELAYED">Delayed</option>
+                        </Select>
+                      </FormControl>
+                    </VStack>
+                  </DrawerBody>
+                  <DrawerFooter
+                    borderTop="1px solid"
+                    borderColor="gray.700"
+                    py={4}
+                  >
+                    <Button
+                      variant="outline"
+                      colorScheme="gray"
+                      color="white"
+                      mr={3}
+                      onClick={() => setIsAddTaskOpen(false)}
+                      borderRadius="8px"
+                      _hover={{ bg: "gray.700" }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      bg="linear-gradient(135deg, #34d399 0%, #059669 100%)"
+                      color="white"
+                      _hover={{
+                        bg: "linear-gradient(135deg, #2cc084 0%, #048554 100%)",
+                      }}
+                      onClick={handleAddTask}
+                      borderRadius="8px"
+                    >
+                      Add Task
+                    </Button>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+
+              {isFetching ? (
+                <Flex justify="center" py={10}>
+                  <Spinner size="xl" color="#667eea" thickness="4px" />
+                </Flex>
+              ) : (
                 <VStack spacing={4} align="stretch">
-                  {isFetching ? (
-                    <Flex justify="center" py={10}>
-                      <Spinner size="lg" color="teal.400" thickness="3px" />
-                    </Flex>
-                  ) : (
-                    tasks.map((task) => (
-                      <Box
-                        key={task.id}
-                        p={4}
-                        borderRadius="lg"
-                        bg="gray.700"
-                        border="1px solid"
-                        borderColor="gray.600"
-                        _hover={{ borderColor: "teal.500", boxShadow: "lg" }}
-                      >
-                        <Flex justify="space-between" align="center">
-                          <VStack align="start" spacing={2}>
-                            <Text
-                              fontWeight="semibold"
-                              fontSize="md"
-                              color="white"
-                            >
-                              {task.title}
+                  {tasks.map((task) => (
+                    <Box
+                      key={task.id}
+                      p={4}
+                      borderRadius="12px"
+                      bg="gray.800"
+                      boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+                      transition="transform 0.2s ease"
+                      _hover={{
+                        transform: "translateY(-4px)",
+                        boxShadow: "0 6px 20px rgba(0, 0, 0, 0.3)",
+                      }}
+                    >
+                      <Flex justify="space-between" align="center">
+                        <VStack align="start" spacing={1}>
+                          <Text fontWeight="bold" fontSize="md" color="white">
+                            {task.title}
+                          </Text>
+                          <Text fontSize="sm" color="gray.400">
+                            {task.description}
+                          </Text>
+                          <HStack spacing={2}>
+                            <Icon as={FaClock} color="gray.500" boxSize={4} />
+                            <Text fontSize="sm" color="gray.500">
+                              {format(new Date(task.dueDate), "MMM dd, yyyy")}
                             </Text>
-                            <Text fontSize="sm" color="gray.300">
-                              {task.description}
-                            </Text>
-                            <Flex align="center">
-                              <Icon
-                                as={FaClock}
-                                color="teal.400"
-                                boxSize={4}
-                                mr={2}
-                              />
-                              <Text fontSize="sm" color="gray.400">
-                                {format(new Date(task.dueDate), "MMM dd, yyyy")}
-                              </Text>
-                            </Flex>
-                          </VStack>
-                          <Flex align="center" gap={3}>
-                            <Select
-                              value={task.status}
-                              onChange={(e) =>
-                                handleStatusChange(task.id, e.target.value)
-                              }
-                              bg={
-                                task.status === "DONE"
-                                  ? "green.600"
-                                  : task.status === "DELAYED"
-                                    ? "red.600"
-                                    : "teal.600"
-                              }
-                              color="white"
-                              border="none"
-                              borderRadius="md"
-                              fontSize="sm"
-                              w="110px"
-                              _focus={{ boxShadow: "none" }}
-                            >
-                              <option value="ONGOING">Ongoing</option>
-                              <option value="DONE">Done</option>
-                              <option value="DELAYED">Delayed</option>
-                            </Select>
-                            <IconButton
-                              aria-label="Delete task"
-                              icon={<Icon as={FaTrash} />}
-                              size="sm"
-                              bg="red.500"
-                              color="white"
-                              borderRadius="md"
-                              _hover={{ bg: "red.600" }}
-                              onClick={() => {
-                                setDeleteId(task.id);
-                                setIsDeleteModalOpen(true);
-                              }}
-                            />
-                          </Flex>
-                        </Flex>
-                      </Box>
-                    ))
-                  )}
+                          </HStack>
+                        </VStack>
+                        <HStack spacing={3}>
+                          <Select
+                            value={task.status}
+                            onChange={(e) =>
+                              handleStatusChange(task.id, e.target.value)
+                            }
+                            size="sm"
+                            bg={
+                              task.status === "DONE"
+                                ? "green.600"
+                                : task.status === "DELAYED"
+                                  ? "red.600"
+                                  : "blue.600"
+                            }
+                            color="white"
+                            border="none"
+                            borderRadius="8px"
+                            fontSize="sm"
+                            w="120px"
+                            _focus={{ boxShadow: "none" }}
+                          >
+                            <option value="ONGOING">Ongoing</option>
+                            <option value="DONE">Done</option>
+                            <option value="DELAYED">Delayed</option>
+                          </Select>
+                          <IconButton
+                            aria-label="Delete task"
+                            icon={<Icon as={FaTrash} />}
+                            size="sm"
+                            bg="red.600"
+                            color="white"
+                            borderRadius="8px"
+                            _hover={{ bg: "red.700" }}
+                            onClick={() => {
+                              setDeleteId(task.id);
+                              setIsDeleteModalOpen(true);
+                            }}
+                          />
+                        </HStack>
+                      </Flex>
+                    </Box>
+                  ))}
                 </VStack>
-              </VStack>
-            </Container>
+              )}
+            </VStack>
           </DrawerBody>
-          <DrawerFooter borderTopWidth="1px" borderColor="gray.700" py={4}>
-            <Container maxW="container.md">
-              <Flex justify="flex-end">
-                <Button
-                  variant="outline"
-                  color="white"
-                  borderColor="gray.600"
-                  onClick={handleClose}
-                  _hover={{ bg: "gray.700" }}
-                  borderRadius="md"
-                  px={6}
-                >
-                  Close
-                </Button>
-              </Flex>
-            </Container>
+          <DrawerFooter
+            borderTop="1px solid"
+            borderColor="gray.700"
+            py={4}
+            px={8}
+          >
+            <Button
+              variant="outline"
+              colorScheme="gray"
+              color="white"
+              onClick={handleClose}
+              borderRadius="8px"
+              fontSize="md"
+              px={6}
+              _hover={{ bg: "gray.700" }}
+            >
+              Close
+            </Button>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
 
-      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
       >
         <ModalOverlay bg="rgba(0, 0, 0, 0.6)" />
-        <ModalContent bg="gray.800" color="white" borderRadius="lg">
-          <ModalHeader fontSize="lg" fontWeight="bold" color="teal.300">
+        <ModalContent bg="#1a202c" color="white" borderRadius="12px">
+          <ModalHeader fontSize="lg" fontWeight="bold">
             Delete Task
           </ModalHeader>
-          <ModalCloseButton color="gray.300" />
+          <ModalCloseButton color="white" />
           <ModalBody>
-            <Text fontSize="md" color="gray.200">
+            <Text fontSize="md">
               Are you sure you want to delete this task?
             </Text>
           </ModalBody>
           <ModalFooter>
             <Button
               variant="outline"
+              colorScheme="gray"
               color="white"
-              borderColor="gray.600"
               mr={3}
               onClick={() => setIsDeleteModalOpen(false)}
-              _hover={{ bg: "gray.700" }}
-              borderRadius="md"
+              borderRadius="8px"
             >
               Cancel
             </Button>
             <Button
-              bg="red.500"
+              bg="red.600"
               color="white"
-              _hover={{ bg: "red.600" }}
+              _hover={{ bg: "red.700" }}
               onClick={handleDeleteTask}
-              borderRadius="md"
+              borderRadius="8px"
             >
               Delete
             </Button>
