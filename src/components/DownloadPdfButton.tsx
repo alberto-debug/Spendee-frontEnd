@@ -19,7 +19,7 @@ const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({
     const pageWidth = doc.internal.pageSize.getWidth();
 
     // Logo - Left Side
-    const logoWidth = 37;
+    const logoWidth = 31;
     const logoHeight = 27;
     doc.addImage(logo, "JPG", 10, 10, logoWidth, logoHeight); // Left-aligned at x=10
 
