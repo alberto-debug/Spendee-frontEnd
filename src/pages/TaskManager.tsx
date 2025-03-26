@@ -32,7 +32,13 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { FaTrash, FaClock, FaBook, FaPlus, FaCalendar } from "react-icons/fa";
+import {
+  FaTrash,
+  FaClock,
+  FaBook,
+  FaPlus,
+  FaCalendarAlt,
+} from "react-icons/fa";
 import { format } from "date-fns";
 
 interface Task {
@@ -57,8 +63,8 @@ const TaskManager: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [isAddingTask, setIsAddingTask] = useState(false);
-  const [isDeletingTask, setIsDeletingTask] = useState(false);
+  const [isAddingTask, setIsAddingTask] = useState(false); // Spinner state for Add Task
+  const [isDeletingTask, setIsDeletingTask] = useState(false); // Spinner state for Delete Task
 
   const fetchTasks = useCallback(async () => {
     setIsFetching(true);
@@ -68,7 +74,7 @@ const TaskManager: React.FC = () => {
         "https://spendee-track-spending-easily.onrender.com/tasks/user",
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       setTasks(response.data);
     } catch (error) {
@@ -95,7 +101,7 @@ const TaskManager: React.FC = () => {
       });
       return;
     }
-    setIsAddingTask(true);
+    setIsAddingTask(true); // Start spinner
     try {
       const token = sessionStorage.getItem("auth-token");
       const response = await axios.post(
@@ -103,7 +109,7 @@ const TaskManager: React.FC = () => {
         newTask,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       setTasks([response.data, ...tasks]);
       setNewTask({
@@ -128,7 +134,7 @@ const TaskManager: React.FC = () => {
       });
       console.error(error);
     } finally {
-      setIsAddingTask(false);
+      setIsAddingTask(false); // Stop spinner
     }
   };
 
@@ -143,12 +149,12 @@ const TaskManager: React.FC = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       setTasks(
         tasks.map((task) =>
-          task.id === taskId ? { ...task, status: newStatus } : task
-        )
+          task.id === taskId ? { ...task, status: newStatus } : task,
+        ),
       );
       toast({
         title: "Task updated!",
@@ -169,14 +175,14 @@ const TaskManager: React.FC = () => {
 
   const handleDeleteTask = async () => {
     if (deleteId === null) return;
-    setIsDeletingTask(true);
+    setIsDeletingTask(true); // Start spinner
     try {
       const token = sessionStorage.getItem("auth-token");
       await axios.delete(
         `https://spendee-track-spending-easily.onrender.com/tasks/task/${deleteId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       setTasks(tasks.filter((task) => task.id !== deleteId));
       toast({
@@ -196,7 +202,7 @@ const TaskManager: React.FC = () => {
       });
       console.error(error);
     } finally {
-      setIsDeletingTask(false);
+      setIsDeletingTask(false); // Stop spinner
     }
   };
 
@@ -206,10 +212,11 @@ const TaskManager: React.FC = () => {
 
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
+  const handleAddTaskClose = () => setIsAddTaskOpen(false); // Single-click close handler
 
   const drawerPlacement = useBreakpointValue<"bottom" | "right">(
     { base: "bottom", md: "right" },
-    { fallback: "right" }
+    { fallback: "right" },
   );
   const drawerWidth = useBreakpointValue({
     base: "100%",
@@ -235,11 +242,13 @@ const TaskManager: React.FC = () => {
         }}
         onClick={handleOpen}
         leftIcon={<Icon as={FaBook} boxSize={5} />}
-        size="lg"
         px={6}
         py={7}
-        fontSize={{ base: "md", md: "lg" }}
         transition="all 0.3s ease"
+        size="lg"
+        height={{ base: "60px", md: "75px", lg: "90px" }}
+        width={{ base: "100px", md: "115px", lg: "130px" }}
+        fontSize={{ base: "12px", md: "14px", lg: "16px" }}
       >
         Tasks
       </Button>
@@ -257,7 +266,13 @@ const TaskManager: React.FC = () => {
           maxH={drawerMaxHeight}
           zIndex={1200}
         >
-          <DrawerCloseButton color="white" size="lg" mt={2} />
+          <DrawerCloseButton
+            color="white"
+            size="lg"
+            mt={2}
+            onClick={handleClose} // Single-click close
+            _focus={{ boxShadow: "none" }}
+          />
           <DrawerHeader
             py={6}
             px={8}
@@ -295,7 +310,7 @@ const TaskManager: React.FC = () => {
               <Drawer
                 isOpen={isAddTaskOpen}
                 placement={drawerPlacement}
-                onClose={() => setIsAddTaskOpen(false)}
+                onClose={handleAddTaskClose}
               >
                 <DrawerOverlay bg="rgba(0, 0, 0, 0.4)" />
                 <DrawerContent
@@ -310,7 +325,13 @@ const TaskManager: React.FC = () => {
                   maxH={drawerMaxHeight}
                   zIndex={1300}
                 >
-                  <DrawerCloseButton color="white" size="lg" mt={2} />
+                  <DrawerCloseButton
+                    color="white"
+                    size="lg"
+                    mt={2}
+                    onClick={handleAddTaskClose} // Single-click close
+                    _focus={{ boxShadow: "none" }}
+                  />
                   <DrawerHeader
                     py={6}
                     px={6}
@@ -388,7 +409,12 @@ const TaskManager: React.FC = () => {
                           alignItems="center"
                         >
                           Due Date
-                          <Icon as={FaCalendar} ml={2} color="gray.500" />
+                          <Icon
+                            as={FaCalendarAlt}
+                            ml={2}
+                            color="gray.400"
+                            boxSize={4}
+                          />
                         </FormLabel>
                         <Input
                           type="date"
@@ -406,6 +432,14 @@ const TaskManager: React.FC = () => {
                           fontSize="md"
                           py={5}
                           placeholder="dd/mm/yyyy"
+                          sx={{
+                            "::-webkit-calendar-picker-indicator": {
+                              display: "none", // Hide default icon since it's in the label
+                            },
+                            "::-webkit-datetime-edit": {
+                              color: newTask.dueDate ? "white" : "gray.500", // Placeholder color
+                            },
+                          }}
                         />
                       </FormControl>
                       <FormControl>
@@ -449,7 +483,7 @@ const TaskManager: React.FC = () => {
                       colorScheme="gray"
                       color="white"
                       mr={3}
-                      onClick={() => setIsAddTaskOpen(false)}
+                      onClick={handleAddTaskClose}
                       borderRadius="8px"
                       _hover={{ bg: "gray.700" }}
                     >
@@ -463,10 +497,11 @@ const TaskManager: React.FC = () => {
                       }}
                       onClick={handleAddTask}
                       borderRadius="8px"
-                      isLoading={isAddingTask}
-                      isDisabled={isAddingTask}
+                      isLoading={isAddingTask} // Spinner during processing
+                      isDisabled={isAddingTask} // Disable button during processing
+                      leftIcon={isAddingTask ? undefined : <Icon as={FaPlus} />}
                     >
-                      Add Task
+                      {isAddingTask ? "Adding..." : "Add Task"}
                     </Button>
                   </DrawerFooter>
                 </DrawerContent>
@@ -606,10 +641,10 @@ const TaskManager: React.FC = () => {
               _hover={{ bg: "red.700" }}
               onClick={handleDeleteTask}
               borderRadius="8px"
-              isLoading={isDeletingTask}
-              isDisabled={isDeletingTask}
+              isLoading={isDeletingTask} // Spinner during processing
+              isDisabled={isDeletingTask} // Disable button during processing
             >
-              Delete
+              {isDeletingTask ? "Deleting..." : "Delete"}
             </Button>
           </ModalFooter>
         </ModalContent>

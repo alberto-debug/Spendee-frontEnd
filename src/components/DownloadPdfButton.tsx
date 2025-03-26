@@ -163,12 +163,17 @@ const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({
 
   return (
     <Button
-      bg="black"
-      border="1px solid #1a1a1d"
+      bg="linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)"
       color="white"
-      borderRadius="10px"
-      _hover={{ bg: "#0C0F15" }}
-      _active={{ bg: "#1a1a1d" }}
+      borderRadius="12px"
+      boxShadow="0 4px 15px rgba(0, 198, 255, 0.3)"
+      _hover={{
+        bg: "linear-gradient(135deg, #00b4e6 0%, #0066e6 100%)",
+        transform: "translateY(-2px)",
+      }}
+      _active={{
+        bg: "linear-gradient(135deg, #00a3cc 0%, #0059cc 100%)",
+      }}
       onClick={handleDownloadPdf}
       leftIcon={
         <Icon
@@ -181,6 +186,7 @@ const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({
       height={{ base: "60px", md: "75px", lg: "90px" }}
       width={{ base: "100px", md: "115px", lg: "130px" }}
       fontSize={{ base: "12px", md: "14px", lg: "16px" }}
+      transition="all 0.3s ease"
     >
       Download
     </Button>
