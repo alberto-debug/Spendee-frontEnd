@@ -32,7 +32,7 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { FaTrash, FaClock, FaBook, FaPlus } from "react-icons/fa";
+import { FaTrash, FaClock, FaBook, FaPlus, FaCalendar } from "react-icons/fa";
 import { format } from "date-fns";
 
 interface Task {
@@ -379,32 +379,55 @@ const TaskManager: React.FC = () => {
                         >
                           Due Date
                         </FormLabel>
-                        <Input
-                          type="date"
-                          value={newTask.dueDate}
-                          onChange={(e) =>
-                            setNewTask({ ...newTask, dueDate: e.target.value })
-                          }
-                          bg="gray.800"
-                          border="1px solid"
-                          borderColor="gray.600"
-                          borderRadius="8px"
-                          _hover={{ borderColor: "gray.500" }}
-                          _focus={{ bg: "gray.700", borderColor: "#667eea" }}
-                          color="white"
-                          fontSize="md"
-                          py={5}
-                          sx={{
-                            "::-webkit-calendar-picker-indicator": {
-                              filter: "invert(1)",
-                              cursor: "pointer",
-                              padding: "8px",
-                            },
-                            "::-webkit-datetime-edit": {
-                              color: "white",
-                            },
-                          }}
-                        />
+                        <HStack>
+                          <Input
+                            type="date"
+                            value={newTask.dueDate}
+                            onChange={(e) =>
+                              setNewTask({
+                                ...newTask,
+                                dueDate: e.target.value,
+                              })
+                            }
+                            bg="gray.800"
+                            border="1px solid"
+                            borderColor="gray.600"
+                            borderRadius="8px"
+                            _hover={{ borderColor: "gray.500" }}
+                            _focus={{ bg: "gray.700", borderColor: "#667eea" }}
+                            color="white"
+                            fontSize="md"
+                            py={5}
+                            sx={{
+                              "::-webkit-calendar-picker-indicator": {
+                                filter: "invert(1)",
+                                cursor: "pointer",
+                                padding: "8px",
+                              },
+                              "::-webkit-datetime-edit": {
+                                color: "white",
+                              },
+                            }}
+                          />
+                          <IconButton
+                            aria-label="Calendar"
+                            icon={<Icon as={FaCalendar} />}
+                            size="sm"
+                            bg="gray.800"
+                            color="white"
+                            borderRadius="8px"
+                            _hover={{ bg: "gray.700" }}
+                            onClick={() => {
+                              // Trigger date picker on mobile
+                              const input = document.querySelector(
+                                "input[type='date']",
+                              ) as HTMLInputElement;
+                              if (input) {
+                                input.click();
+                              }
+                            }}
+                          />
+                        </HStack>
                       </FormControl>
                       <FormControl>
                         <FormLabel
