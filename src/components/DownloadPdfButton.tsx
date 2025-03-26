@@ -1,8 +1,10 @@
+
 import React from "react";
 import { Button, Icon, useMediaQuery } from "@chakra-ui/react";
 import { FaDownload } from "react-icons/fa";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logo from "../images/logo.jpg"; // Ensure this path is correct
 
 interface DownloadPdfButtonProps {
   transactions: any[];
@@ -15,26 +17,52 @@ const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({
 }) => {
   const handleDownloadPdf = () => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Add title and introductory text
-    doc.setFontSize(16);
-    doc.text("Financial Transactions Report", 10, 10);
+    // Logo - Left Side
+    const logoWidth = 40;
+    const logoHeight = 20;
+    doc.addImage(logo, "JPG", 10, 10, logoWidth, logoHeight); // Left-aligned at x=10
+
+    // Header Section
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 51, 102); // Dark blue
+    doc.text("Financial Transactions Report", 55, 20); // Adjusted to align with logo
+
     doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(50, 50, 50); // Dark gray
     doc.text(
-      "This document provides a comprehensive overview of your recent financial transactions",
+      "A detailed summary of your financial activities and account status",
+      55,
+      30,
+    );
+    doc.text(`Report Generated: ${new Date().toLocaleDateString()}`, 55, 38);
+
+    // Divider Line
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(0, 51, 102); // Dark blue
+    doc.line(10, 45, pageWidth - 10, 45);
+
+    // Balance Summary
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0); // Black
+    doc.text("Account Overview", 10, 55);
+    doc.setFontSize(12);
+    doc.text("Current Balance:", 10, 65);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(34, 139, 34); // Forest green
+    doc.text(`$${balance.toFixed(2)}`, 60, 65);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(50, 50, 50); // Dark gray
+    doc.text(
+      "This balance reflects all recorded transactions up to the report date.",
       10,
-      20,
+      75,
     );
 
-    // Add balance information
-    doc.setFontSize(14);
-    doc.text("Current Account Balance:", 10, 35);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text(`$${balance.toFixed(2)}`, 10, 45);
-    doc.setFont("helvetica", "normal");
-
-    // Add transactions table
+    // Transactions Table - Smaller Row Heights
     const tableData = [
       ["Date", "Description", "Type", "Amount"],
       ...transactions.map((transaction) => [
@@ -42,46 +70,94 @@ const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({
         transaction.description,
         transaction.type,
         transaction.type === "INCOME"
-          ? `+$${transaction.amount}`
-          : `-$${transaction.amount}`,
+          ? `+$${transaction.amount.toFixed(2)}`
+          : `-$${transaction.amount.toFixed(2)}`,
       ]),
     ];
 
     autoTable(doc, {
       head: [tableData[0]],
       body: tableData.slice(1),
-      startY: 55,
-      styles: { fontSize: 10 },
+      startY: 85,
+      styles: {
+        fontSize: 9, // Reduced font size
+        cellPadding: 1.5, // Reduced padding for smaller rows
+        textColor: [50, 50, 50], // Dark gray
+        lineWidth: 0.1,
+        lineColor: [200, 200, 200], // Light gray
+      },
+      headStyles: {
+        fillColor: [0, 51, 102], // Dark blue header
+        textColor: [255, 255, 255], // White text
+        fontStyle: "bold",
+        fontSize: 10,
+        cellPadding: 2,
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245], // Light gray for alternate rows
+      },
       didParseCell: (data) => {
         if (data.column.index === 2) {
-          // Column index for "Type"
-          const cellText = data.cell.text.toString(); // Ensure text is a string
+          const cellText = data.cell.text.toString();
           if (cellText === "INCOME") {
-            data.cell.styles.fillColor = [144, 238, 144]; // Light green
+            data.cell.styles.fillColor = [230, 255, 230]; // Light green
           } else if (cellText === "EXPENSE") {
-            data.cell.styles.fillColor = [255, 182, 193]; // Light red (pink)
+            data.cell.styles.fillColor = [255, 230, 230]; // Light red
           }
+        }
+        if (data.column.index === 3) {
+          data.cell.styles.halign = "right"; // Right-align amounts
         }
       },
     });
 
-    // Add footer text
+    // Additional Insights
+    const finalY = (doc as any).lastAutoTable.finalY || 95;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0); // Black
+    doc.text("Transaction Summary", 10, finalY + 10);
     doc.setFontSize(10);
+    doc.setTextColor(50, 50, 50); // Dark gray
+    const totalIncome = transactions
+      .filter((t) => t.type === "INCOME")
+      .reduce((sum, t) => sum + t.amount, 0);
+    const totalExpense = transactions
+      .filter((t) => t.type === "EXPENSE")
+      .reduce((sum, t) => sum + t.amount, 0);
+    doc.text(`Total Income: $${totalIncome.toFixed(2)}`, 10, finalY + 18);
+    doc.text(`Total Expenses: $${totalExpense.toFixed(2)}`, 10, finalY + 25);
     doc.text(
-      "For any inquiries or further assistance, please contact our support team.",
+      `Net Change: $${(totalIncome - totalExpense).toFixed(2)}`,
       10,
-      doc.internal.pageSize.getHeight() - 20,
-    );
-    doc.text(
-      "Generated by: Alberto Junior",
-      10,
-      doc.internal.pageSize.getHeight() - 10,
+      finalY + 32,
     );
 
-    doc.save("transactions_report.pdf");
+    // Footer - Fixed to Avoid Overlap
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.setFillColor(0, 51, 102); // Dark blue
+    doc.rect(0, pageHeight - 20, pageWidth, 20, "F"); // Reduced height to 20
+    doc.setFontSize(8); // Smaller font to fit
+    doc.setTextColor(255, 255, 255); // White
+    doc.text(
+      "© 2025 xAI Financial Services | All Rights Reserved",
+      10,
+      pageHeight - 13,
+    );
+    doc.text(
+      "Contact Us: support@xai-finance.com | Phone: (123) 456-7890",
+      10,
+      pageHeight - 6,
+    );
+    doc.text(
+      "Confidential: For recipient use only",
+      pageWidth - 10,
+      pageHeight - 6,
+      { align: "right" },
+    );
+
+    doc.save("Financial_Transactions_Report.pdf");
   };
 
-  // Responsive font size using Chakra UI's useMediaQuery hook
   const [isSmallScreen] = useMediaQuery("(max-width: 600px)");
   const fontSize = isSmallScreen ? "sm" : "md";
 
