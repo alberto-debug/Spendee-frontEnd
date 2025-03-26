@@ -27,28 +27,19 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Checkbox,
   FormLabel,
   FormControl,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import axios, { AxiosError } from "axios";
-import {
-  FaDownload,
-  FaUpload,
-  FaTrash,
-  FaCheck,
-  FaClock,
-  FaBook,
-  FaPlus,
-} from "react-icons/fa"; // Import icons
-import { format, parse } from "date-fns"; // Import date-fns for date formatting
+import axios from "axios";
+import { FaTrash, FaClock, FaBook, FaPlus } from "react-icons/fa";
+import { format } from "date-fns";
 
 interface Task {
   id: number;
   title: string;
   description: string;
-  dueDate: string; // Add dueDate field
+  dueDate: string;
   status: string;
 }
 
@@ -58,14 +49,14 @@ const TaskManager: React.FC = () => {
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
-    dueDate: "", // Add dueDate field
+    dueDate: "",
     status: "ONGOING",
   });
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
-  const [isFetching, setIsFetching] = useState(false); // State for fetching tasks
-  const [isOpen, setIsOpen] = useState(false); // State to control the drawer
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State for delete modal
-  const [deleteId, setDeleteId] = useState<number | null>(null); // State for the task ID to be deleted
+  const [isFetching, setIsFetching] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const fetchTasks = async () => {
     setIsFetching(true);
@@ -74,9 +65,7 @@ const TaskManager: React.FC = () => {
       const response = await axios.get<Task[]>(
         "https://spendee-track-spending-easily.onrender.com/tasks/user",
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
       setTasks(response.data);
@@ -111,9 +100,7 @@ const TaskManager: React.FC = () => {
         "https://spendee-track-spending-easily.onrender.com/tasks/add",
         newTask,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
       setTasks([response.data, ...tasks]);
@@ -148,9 +135,9 @@ const TaskManager: React.FC = () => {
         throw new Error("Authentication token not found.");
       }
 
-      const response = await axios.patch(
+      await axios.patch(
         `https://spendee-track-spending-easily.onrender.com/tasks/${taskId}/status?newStatus=${newStatus}`,
-        null, // No body needed
+        null,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -209,9 +196,7 @@ const TaskManager: React.FC = () => {
       await axios.delete(
         `https://spendee-track-spending-easily.onrender.com/tasks/task/${deleteId}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
       const updatedTasks = tasks.filter((task) => task.id !== deleteId);
@@ -248,26 +233,24 @@ const TaskManager: React.FC = () => {
     <>
       {/* Main Button to open TaskManager */}
       <Button
-        bg="black"
-        border="1px solid #4a5568"
+        bg="linear-gradient(135deg, #6B7280, #374151)"
         color="white"
-        borderRadius="10px"
-        _hover={{ bg: "#374151" }}
-        _active={{ bg: "#4a5568" }}
+        borderRadius="lg"
+        boxShadow="md"
+        _hover={{
+          bg: "linear-gradient(135deg, #4B5563, #1F2937)",
+          boxShadow: "lg",
+        }}
+        _active={{ bg: "gray.700" }}
         onClick={handleOpen}
-        leftIcon={
-          <Icon
-            as={FaBook}
-            color="blue.500"
-            boxSize={{ base: "16px", md: "20px", lg: "24px" }}
-          />
-        }
+        leftIcon={<Icon as={FaBook} color="teal.300" boxSize={5} />}
         size="lg"
-        height={{ base: "60px", md: "75px", lg: "90px" }}
-        width={{ base: "100px", md: "115px", lg: "130px" }}
-        fontSize={{ base: "12px", md: "14px", lg: "16px" }}
+        px={6}
+        py={6}
+        fontSize={{ base: "md", md: "lg" }}
+        fontWeight="semibold"
       >
-        Task
+        Tasks
       </Button>
 
       {/* TaskManager Drawer */}
@@ -275,46 +258,40 @@ const TaskManager: React.FC = () => {
         isOpen={isOpen}
         placement="bottom"
         onClose={handleClose}
-        size="md" // Adjusted size to 'md' for better fit
+        size="md"
       >
-        <DrawerOverlay />
+        <DrawerOverlay bg="rgba(0, 0, 0, 0.5)" />
         <DrawerContent
-          bg="#282c34"
+          bg="gray.800"
           color="white"
-          borderRadius="10px"
-          boxShadow="lg"
-          maxH="50vh" // Limit height to 50% of viewport height
-          mx="auto" // Center horizontally
-          w={drawerWidth} // Adjust width responsively
+          borderRadius="xl"
+          boxShadow="2xl"
+          maxH="60vh"
+          mx="auto"
+          w={drawerWidth}
         >
-          <DrawerCloseButton color="white" />
-          <DrawerHeader borderBottomWidth="1px" borderColor="#4a5568">
-            <Heading size="lg" color="white">
+          <DrawerCloseButton color="gray.300" size="lg" mt={2} />
+          <DrawerHeader borderBottomWidth="1px" borderColor="gray.700" py={4}>
+            <Heading size="lg" color="teal.300" fontWeight="bold">
               Task Manager
             </Heading>
           </DrawerHeader>
-          <DrawerBody>
-            <Container maxW="container.lg">
-              <VStack spacing={4} align="stretch">
+          <DrawerBody py={6}>
+            <Container maxW="container.md">
+              <VStack spacing={6} align="stretch">
                 <Button
-                  colorScheme="blue"
+                  bg="teal.500"
+                  color="white"
                   onClick={() => setIsAddTaskOpen(true)}
-                  mb={4}
-                  leftIcon={<Icon as={FaPlus} color="white" />}
-                  size={{ base: "sm", md: "lg" }} // Responsive size
-                  borderRadius="full"
-                  _hover={{
-                    bg: "blue.600",
-                    transform: "scale(1.05)",
-                    transition: "all 0.2s ease-in-out",
-                  }}
-                  _active={{
-                    bg: "blue.700",
-                    transform: "scale(0.95)",
-                    transition: "all 0.2s ease-in-out",
-                  }}
+                  leftIcon={<Icon as={FaPlus} />}
+                  size="lg"
+                  borderRadius="md"
+                  _hover={{ bg: "teal.600", transform: "translateY(-2px)" }}
+                  _active={{ bg: "teal.700" }}
+                  boxShadow="md"
+                  fontWeight="medium"
                 >
-                  Add Task
+                  Add New Task
                 </Button>
                 {isAddTaskOpen && (
                   <Drawer
@@ -323,31 +300,38 @@ const TaskManager: React.FC = () => {
                     onClose={() => setIsAddTaskOpen(false)}
                     size="md"
                   >
-                    <DrawerOverlay />
+                    <DrawerOverlay bg="rgba(0, 0, 0, 0.5)" />
                     <DrawerContent
-                      bg="#282c34"
+                      bg="gray.800"
                       color="white"
-                      borderRadius="10px"
-                      boxShadow="lg"
-                      maxH="50vh" // Limit height to 50% of viewport height
-                      mx="auto" // Center horizontally
-                      w={drawerWidth} // Adjust width responsively
+                      borderRadius="xl"
+                      boxShadow="2xl"
+                      maxH="60vh"
+                      mx="auto"
+                      w={drawerWidth}
                     >
-                      <DrawerCloseButton color="white" />
+                      <DrawerCloseButton color="gray.300" size="lg" mt={2} />
                       <DrawerHeader
                         borderBottomWidth="1px"
-                        borderColor="#4a5568"
+                        borderColor="gray.700"
+                        py={4}
                       >
-                        <Heading size="lg" color="white">
-                          Add Task
+                        <Heading size="md" color="teal.300" fontWeight="bold">
+                          Create Task
                         </Heading>
                       </DrawerHeader>
-                      <DrawerBody>
-                        <VStack spacing={4} align="stretch">
+                      <DrawerBody py={6}>
+                        <VStack spacing={5} align="stretch">
                           <FormControl>
-                            <FormLabel color="white">Title</FormLabel>
+                            <FormLabel
+                              color="gray.300"
+                              fontSize="sm"
+                              fontWeight="medium"
+                            >
+                              Title
+                            </FormLabel>
                             <Input
-                              placeholder="Title"
+                              placeholder="Enter task title"
                               value={newTask.title}
                               onChange={(e) =>
                                 setNewTask({
@@ -355,17 +339,30 @@ const TaskManager: React.FC = () => {
                                   title: e.target.value,
                                 })
                               }
-                              borderColor="#4a5568"
-                              _hover={{ borderColor: "#374151" }}
-                              _focus={{ borderColor: "#282c34" }}
+                              bg="gray.700"
+                              border="1px solid"
+                              borderColor="gray.600"
+                              borderRadius="md"
+                              _hover={{ borderColor: "gray.500" }}
+                              _focus={{
+                                borderColor: "teal.400",
+                                bg: "gray.600",
+                              }}
                               color="white"
-                              fontSize={["sm", "md", "lg"]}
+                              fontSize="md"
+                              py={5}
                             />
                           </FormControl>
                           <FormControl>
-                            <FormLabel color="white">Description</FormLabel>
+                            <FormLabel
+                              color="gray.300"
+                              fontSize="sm"
+                              fontWeight="medium"
+                            >
+                              Description
+                            </FormLabel>
                             <Input
-                              placeholder="Description"
+                              placeholder="Enter description"
                               value={newTask.description}
                               onChange={(e) =>
                                 setNewTask({
@@ -373,15 +370,28 @@ const TaskManager: React.FC = () => {
                                   description: e.target.value,
                                 })
                               }
-                              borderColor="#4a5568"
-                              _hover={{ borderColor: "#374151" }}
-                              _focus={{ borderColor: "#282c34" }}
+                              bg="gray.700"
+                              border="1px solid"
+                              borderColor="gray.600"
+                              borderRadius="md"
+                              _hover={{ borderColor: "gray.500" }}
+                              _focus={{
+                                borderColor: "teal.400",
+                                bg: "gray.600",
+                              }}
                               color="white"
-                              fontSize={["sm", "md", "lg"]}
+                              fontSize="md"
+                              py={5}
                             />
                           </FormControl>
                           <FormControl>
-                            <FormLabel color="white">Due Date</FormLabel>
+                            <FormLabel
+                              color="gray.300"
+                              fontSize="sm"
+                              fontWeight="medium"
+                            >
+                              Due Date
+                            </FormLabel>
                             <Input
                               type="date"
                               value={newTask.dueDate}
@@ -391,15 +401,36 @@ const TaskManager: React.FC = () => {
                                   dueDate: e.target.value,
                                 })
                               }
-                              borderColor="#4a5568"
-                              _hover={{ borderColor: "#374151" }}
-                              _focus={{ borderColor: "#282c34" }}
+                              bg="gray.700"
+                              border="1px solid"
+                              borderColor="gray.600"
+                              borderRadius="md"
+                              _hover={{ borderColor: "gray.500" }}
+                              _focus={{
+                                borderColor: "teal.400",
+                                bg: "gray.600",
+                              }}
                               color="white"
-                              fontSize={["sm", "md", "lg"]}
+                              fontSize="md"
+                              py={5}
+                              sx={{
+                                "::-webkit-calendar-picker-indicator": {
+                                  filter: "invert(0.8)",
+                                  cursor: "pointer",
+                                  padding: "8px",
+                                },
+                                "::-webkit-datetime-edit": { color: "white" },
+                              }}
                             />
                           </FormControl>
                           <FormControl>
-                            <FormLabel color="white">Status</FormLabel>
+                            <FormLabel
+                              color="gray.300"
+                              fontSize="sm"
+                              fontWeight="medium"
+                            >
+                              Status
+                            </FormLabel>
                             <Select
                               value={newTask.status}
                               onChange={(e) =>
@@ -408,11 +439,18 @@ const TaskManager: React.FC = () => {
                                   status: e.target.value,
                                 })
                               }
-                              borderColor="#4a5568"
-                              _hover={{ borderColor: "#374151" }}
-                              _focus={{ borderColor: "#282c34" }}
+                              bg="gray.700"
+                              border="1px solid"
+                              borderColor="gray.600"
+                              borderRadius="md"
+                              _hover={{ borderColor: "gray.500" }}
+                              _focus={{
+                                borderColor: "teal.400",
+                                bg: "gray.600",
+                              }}
                               color="white"
-                              fontSize={["sm", "md", "lg"]}
+                              fontSize="md"
+                              py={2}
                             >
                               <option value="ONGOING">Ongoing</option>
                               <option value="DONE">Done</option>
@@ -421,16 +459,29 @@ const TaskManager: React.FC = () => {
                           </FormControl>
                         </VStack>
                       </DrawerBody>
-                      <DrawerFooter borderTopWidth="1px" borderColor="#4a5568">
+                      <DrawerFooter
+                        borderTopWidth="1px"
+                        borderColor="gray.700"
+                        py={4}
+                      >
                         <Button
                           variant="outline"
                           color="white"
+                          borderColor="gray.600"
                           mr={3}
                           onClick={() => setIsAddTaskOpen(false)}
+                          _hover={{ bg: "gray.700" }}
+                          borderRadius="md"
                         >
                           Cancel
                         </Button>
-                        <Button colorScheme="blue" onClick={handleAddTask}>
+                        <Button
+                          bg="teal.500"
+                          color="white"
+                          onClick={handleAddTask}
+                          _hover={{ bg: "teal.600" }}
+                          borderRadius="md"
+                        >
                           Add Task
                         </Button>
                       </DrawerFooter>
@@ -439,54 +490,63 @@ const TaskManager: React.FC = () => {
                 )}
                 <VStack spacing={4} align="stretch">
                   {isFetching ? (
-                    <Spinner size="lg" color="blue.500" />
+                    <Flex justify="center" py={10}>
+                      <Spinner size="lg" color="teal.400" thickness="3px" />
+                    </Flex>
                   ) : (
                     tasks.map((task) => (
                       <Box
                         key={task.id}
-                        p={2} // Reduced padding
-                        borderRadius="md"
-                        bg="#374151"
+                        p={4}
+                        borderRadius="lg"
+                        bg="gray.700"
                         border="1px solid"
-                        borderColor="#4a5568"
+                        borderColor="gray.600"
+                        _hover={{ borderColor: "teal.500", boxShadow: "lg" }}
                       >
                         <Flex justify="space-between" align="center">
-                          <Box>
-                            <Text fontWeight="bold" color="white" fontSize="sm">
+                          <VStack align="start" spacing={2}>
+                            <Text
+                              fontWeight="semibold"
+                              fontSize="md"
+                              color="white"
+                            >
                               {task.title}
                             </Text>
-                            <Text color="#a0aec0" fontSize="xs">
+                            <Text fontSize="sm" color="gray.300">
                               {task.description}
                             </Text>
-                            <Text color="#a0aec0" fontSize="xs">
-                              Due Date:{" "}
-                              {format(new Date(task.dueDate), "yyyy-MM-dd")}
-                            </Text>
-                            <Text
-                              color={
-                                task.status === "DONE"
-                                  ? "green.500"
-                                  : task.status === "DELAYED"
-                                    ? "red.500"
-                                    : "blue.500"
-                              }
-                              fontWeight="bold"
-                              fontSize="xs"
-                            >
-                              Status: {task.status}
-                            </Text>
-                          </Box>
-                          <Flex align="center">
+                            <Flex align="center">
+                              <Icon
+                                as={FaClock}
+                                color="teal.400"
+                                boxSize={4}
+                                mr={2}
+                              />
+                              <Text fontSize="sm" color="gray.400">
+                                {format(new Date(task.dueDate), "MMM dd, yyyy")}
+                              </Text>
+                            </Flex>
+                          </VStack>
+                          <Flex align="center" gap={3}>
                             <Select
                               value={task.status}
                               onChange={(e) =>
                                 handleStatusChange(task.id, e.target.value)
                               }
-                              borderColor="#4a5568"
-                              _hover={{ borderColor: "#374151" }}
-                              _focus={{ borderColor: "#282c34" }}
+                              bg={
+                                task.status === "DONE"
+                                  ? "green.600"
+                                  : task.status === "DELAYED"
+                                    ? "red.600"
+                                    : "teal.600"
+                              }
                               color="white"
-                              fontSize="xs"
+                              border="none"
+                              borderRadius="md"
+                              fontSize="sm"
+                              w="110px"
+                              _focus={{ boxShadow: "none" }}
                             >
                               <option value="ONGOING">Ongoing</option>
                               <option value="DONE">Done</option>
@@ -495,10 +555,11 @@ const TaskManager: React.FC = () => {
                             <IconButton
                               aria-label="Delete task"
                               icon={<Icon as={FaTrash} />}
-                              variant="ghost"
-                              colorScheme="red"
                               size="sm"
-                              ml={2}
+                              bg="red.500"
+                              color="white"
+                              borderRadius="md"
+                              _hover={{ bg: "red.600" }}
                               onClick={() => {
                                 setDeleteId(task.id);
                                 setIsDeleteModalOpen(true);
@@ -513,14 +574,17 @@ const TaskManager: React.FC = () => {
               </VStack>
             </Container>
           </DrawerBody>
-          <DrawerFooter borderTopWidth="1px" borderColor="#4a5568">
-            <Container maxW="container.lg">
+          <DrawerFooter borderTopWidth="1px" borderColor="gray.700" py={4}>
+            <Container maxW="container.md">
               <Flex justify="flex-end">
                 <Button
                   variant="outline"
                   color="white"
-                  mr={3}
+                  borderColor="gray.600"
                   onClick={handleClose}
+                  _hover={{ bg: "gray.700" }}
+                  borderRadius="md"
+                  px={6}
                 >
                   Close
                 </Button>
@@ -535,22 +599,36 @@ const TaskManager: React.FC = () => {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
       >
-        <ModalOverlay />
-        <ModalContent bg="#282c34" color="white">
-          <ModalHeader>Delete Task</ModalHeader>
-          <ModalCloseButton />
+        <ModalOverlay bg="rgba(0, 0, 0, 0.6)" />
+        <ModalContent bg="gray.800" color="white" borderRadius="lg">
+          <ModalHeader fontSize="lg" fontWeight="bold" color="teal.300">
+            Delete Task
+          </ModalHeader>
+          <ModalCloseButton color="gray.300" />
           <ModalBody>
-            <Text>Are you sure you want to delete this task?</Text>
+            <Text fontSize="md" color="gray.200">
+              Are you sure you want to delete this task?
+            </Text>
           </ModalBody>
           <ModalFooter>
             <Button
-              variant="ghost"
+              variant="outline"
+              color="white"
+              borderColor="gray.600"
               mr={3}
               onClick={() => setIsDeleteModalOpen(false)}
+              _hover={{ bg: "gray.700" }}
+              borderRadius="md"
             >
               Cancel
             </Button>
-            <Button colorScheme="red" onClick={handleDeleteTask}>
+            <Button
+              bg="red.500"
+              color="white"
+              _hover={{ bg: "red.600" }}
+              onClick={handleDeleteTask}
+              borderRadius="md"
+            >
               Delete
             </Button>
           </ModalFooter>
