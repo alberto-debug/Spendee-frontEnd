@@ -69,7 +69,7 @@ const AdminLoginPage: React.FC<AdminLoginProps> = () => {
 
     try {
       const response = await axios.post<{ token: string; username: string }>(
-        "http://localhost:8080/admin/login",
+        "https://spendee-track-spending-easily.onrender.com/admin/login",
         {
           email,
           password,

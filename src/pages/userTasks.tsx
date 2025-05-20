@@ -50,7 +50,7 @@ const UserTasks = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get<UserSummary[]>("http://localhost:8080/admin/users", {
+        const response = await axios.get<UserSummary[]>("https://spendee-track-spending-easily.onrender.com/admin/users", {
           headers: {
             Authorization: `Bearer ${sessionStorage.getItem("auth-token")}`,
           },
@@ -70,7 +70,7 @@ const UserTasks = () => {
       if (!email) return;
 
       try {
-        const response = await axios.get<Task[]>(`http://localhost:8080/admin/users/${email}/tasks`, {
+        const response = await axios.get<Task[]>(`https://spendee-track-spending-easily.onrender.com/admin/users/${email}/tasks`, {
           headers: {
             Authorization: `Bearer ${sessionStorage.getItem("auth-token")}`,
           },

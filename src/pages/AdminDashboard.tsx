@@ -69,7 +69,7 @@ const AdminLoginPage: React.FC<AdminLoginProps> = () => {
 
     try {
       const response = await axios.post<{ token: string; username: string }>(
-        "http://localhost:8080/admin/login",
+        "/admin/login",
         {
           email,
           password,
@@ -85,7 +85,7 @@ const AdminLoginPage: React.FC<AdminLoginProps> = () => {
 
       sessionStorage.setItem("auth-token", response.data.token);
       sessionStorage.setItem("username", response.data.username);
-      navigate("/admin/dashboard");
+      navigate("https://spendee-track-spending-easily.onrender.com/admin/dashboard");
     } catch (error: any) {
       if (
         error.response?.status === 401 &&
