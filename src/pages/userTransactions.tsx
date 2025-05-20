@@ -46,7 +46,7 @@ const UserTransactions = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get<UserSummary[]>("http://localhost:8080/admin/users", {
+        const response = await axios.get<UserSummary[]>("https://spendee-track-spending-easily.onrender.com/admin/users", {
           headers: {
             Authorization: `Bearer ${sessionStorage.getItem("auth-token")}`,
           },
@@ -66,7 +66,7 @@ const UserTransactions = () => {
       if (!email) return;
 
       try {
-        const response = await axios.get<Transaction[]>(`http://localhost:8080/admin/users/${email}/transactions`, {
+        const response = await axios.get<Transaction[]>(`https://spendee-track-spending-easily.onrender.com/admin/users/${email}/transactions`, {
           headers: {
             Authorization: `Bearer ${sessionStorage.getItem("auth-token")}`,
           },
