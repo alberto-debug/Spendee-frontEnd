@@ -79,7 +79,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({ balance }) => {
 
   return (
     <Box
-      bg="linear-gradient(135deg, #1a1a1d 0%, #0C0F15 100%)"
+      //bg="linear-gradient(135deg, #1a1a1d 0%, #0C0F15 100%)"
+      //bg="linear-gradient(135deg, #0f2027, #203a43, #2c5364)"
+      //bg="linear-gradient(135deg, #1CB5E0 0%, #000851 100%)"
+background="radial-gradient(circle at center, #1E293B 0%, #0F172A 100%)"
+
+
+
       color="white"
       py={{ base: 8, md: 16 }}
       position="relative"
