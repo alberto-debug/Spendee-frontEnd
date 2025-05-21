@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, TouchEvent } from "react";
 import {
   Box,
